@@ -1,0 +1,101 @@
+<pre>
+<nobr>
+<h2>The result is ready!</h2>
+<pre lang="html4strict">
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Minimal Django File Upload Example</title>
+    </head>
+</nobr>
+	<script>
+	function dim_changed(){
+		var selector = document.getElementById("dim");
+		var value = selector[selector.selectedIndex].value;
+		var pca = document.getElementById("pca");
+		if(value == "1" && pca.checked == false){
+			document.getElementById("first_dim").disabled = false;
+			document.getElementById("second_dim").disabled = true;
+			document.getElementById("third_dim").disabled = true;
+		}
+		if(value == "2"  && pca.checked == false){
+			document.getElementById("second_dim").disabled = false;
+			document.getElementById("third_dim").disabled = true;
+		}
+		if(value == "3"  && pca.checked == false){
+			document.getElementById("second_dim").disabled = false;
+			document.getElementById("third_dim").disabled = false;
+		}
+	}
+	function use_pca(){
+		var selector = document.getElementById("dim");
+		var value = selector[selector.selectedIndex].value;
+		var pca = document.getElementById("pca");
+		if(pca.checked == true){
+			document.getElementById("first_dim").disabled = true;
+			document.getElementById("second_dim").disabled = true;
+			document.getElementById("third_dim").disabled = true;
+		}else{
+			if(value == "1"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = true;
+				document.getElementById("third_dim").disabled = true;
+			}
+			if(value == "2"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = false;
+				document.getElementById("third_dim").disabled = true;
+			}
+			if(value == "3"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = false;
+				document.getElementById("third_dim").disabled = false;
+			}	
+		}
+	}
+	</script>
+<body>
+<nobr>
+<form action = "{% url 'cytometry:calculate' %}" method="post">
+{% csrf_token %}
+	<p><b>4. Select methods for evaluating the solution</b></p>
+	<input type="checkbox" id="WCSS" name="checks[]" value="1">WCSS<br>
+	<input type="checkbox" id="BCSS" name="checks[]" value="2">BCSS<br>
+	<input type="checkbox" id="Calinski-Harabasz" name="checks[]" value="3">Calinski-Harabasz<br>
+	<input type="checkbox" id="Davies-Bouldin" name="checks[]" value="4">Davies-Bouldin<br>
+	<input type="checkbox" id="Silhouette" name="checks[]" value="5">Silhouette<br>
+<input type="submit" class="btn" value="Calculate" name="calculate_btn">
+</form>
+
+<form action = "{% url 'cytometry:show' %}" method="post">
+{% csrf_token %}
+	<p><b>5. Select the grahps you want to create</b></p>
+	<select onchange="dim_changed()" name = "dim" id = "dim">
+            <option value="1">histogram</option>
+            <option value="2">2D graph</option>
+            <option value="3">3D graph</option>
+	</select>
+	<input type="checkbox" id="pca" name="pca" value="pca" onclick="use_pca()">use PCA
+	
+	<select name = "first_dim" id="first_dim">
+	{% for choice in form.my_choice_field.field.choices %}
+	  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+	{% endfor %}
+	</select>
+	<select name = "second_dim" id="second_dim" disabled="disabled">
+	{% for choice in form.my_choice_field.field.choices %}
+	  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+	{% endfor %}
+	</select>
+	<select name = "third_dim" id="third_dim" disabled="disabled">
+	{% for choice in form.my_choice_field.field.choices %}
+	  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+	{% endfor %}
+	</select><br>
+<input type="submit" class="btn" value="Show" name="show_btn">
+</form>
+
+<nobr/>
+</body>
+</html>

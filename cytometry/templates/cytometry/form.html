@@ -1,0 +1,143 @@
+<pre>
+<nobr>
+<h2>Welcome to the cytometric data grouping tool.</h2>
+<pre lang="html4strict">
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Minimal Django File Upload Example</title>
+    </head>
+</nobr>
+	<script>
+	function determinate_number_of_cluster(){
+		var unknown = document.getElementById("noc");
+		var from = document.getElementById("from");
+		var to = document.getElementById("to");
+		if(unknown.checked == true){
+			document.getElementById("n_clusters").disabled = true;
+			from.disabled = false
+			to.disabled = false
+		}else{
+			document.getElementById("n_clusters").disabled = false;
+			from.disabled = true
+			to.disabled = true
+		}
+	}
+	function check(){
+		if(!isDoc){
+			alert("Upload the file!")		
+		}
+	}
+
+	function updateProgress(progressBarElement, progressBarMessageElement, progress) {
+	  progressBarElement.style.width = progress.percent + "%";
+	  progressBarMessageElement.innerHTML = progress.current + ' of ' + progress.total + ' processed.';
+	}
+
+	var trigger = document.getElementById('progress-bar-trigger');
+	trigger.addEventListener('click', function(e) {
+	  var bar = document.getElementById("progress-bar");
+	  var barMessage = document.getElementById("progress-bar-message");
+	  for (var i = 0; i < 11; i++) {
+	    setTimeout(updateProgress, 500 * i, bar, barMessage, {
+	      percent: 10 * i,
+	      current: 10 * i,
+	      total: 100
+	    })
+	  }
+	})
+
+	</script>
+<body>
+How to use 
+===================================================
+0. Upload the fcs file
+1. Select the grouping algorithm
+2. Set the parameters of algorithm
+3. Click run
+4. Select methods for evaluating the solution 
+5. Select the charts you want to create
+===================================================
+<nobr>
+<p><b>0. Upload the fcs file</b></p>
+<form name='upload_btn' action="{% url 'cytometry:upload_file' %}" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+	<p>{{ form.non_field_errors }}</p>
+	<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+	<p>
+	{{ form.docfile.errors }}
+	{{ form.docfile }}
+	</p>
+	{% if form %}
+		<p><input type="submit" value="Upload" /></p>
+	{% endif %}
+</form>
+
+<form action = "{% url 'cytometry:run' %}" method="post">
+{% csrf_token %}
+	<script>
+		isDoc = false
+	</script>
+	{% if document %}
+	<ul>
+		<li>{{ document.docfile.name }} <input type='hidden' name="option[]" value="{{ document.docfile.url }}"><a href="{{ document.docfile.url }}"/></a></li>
+		<script>
+			isDoc = true
+		</script>
+	</ul>
+	{% else %}
+	<p>No document.</p>
+	{% endif %}
+
+	{% if messages %}
+	    {% for message in messages %}
+	    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+	    {% endfor %}
+	{% endif %}
+
+	<p><b>1. Select the grouping algorithm</b></p>
+		  <select>
+		    <option value="Kmeans">Kmeans</option>
+		  </select> 
+		
+	<p><b>2. Set the parameters of algorithm</b></p>
+		The number of clusters
+		  <input type="checkbox" id="noc" name="n_clusters_unknown" onclick="determinate_number_of_cluster()">Unknown
+		  <script>
+			document.getElementById("noc").checked = false; 
+	          </script>
+	          | from<input type="number" id="from" name="from" min="2" max="99" disabled="disabled" value=2>
+		  to<input type="number" id="to" name="to" min="3" max="100" disabled="disabled" value=7>
+		  <script>
+			document.getElementById("from").disabled = true;
+			document.getElementById("to").disabled = true;
+	          </script>
+		  <br>
+		  Quantity (between 2 and 20):
+		  <input type="number" id="n_clusters" name="n_clusters" min="2" max="100" value=5>
+		
+		<br><br>The number of initializations<br>
+		  Quantity (between 1 and 100):
+		  <input type="number" name="n_init" min="1" max="100" value="10">
+		
+		<br><br>The maximum number of iterations<br>
+		  Quantity (between 1 and 300):
+		  <input type="number" name="max_iter" min="1" max="1000"  value="300">
+
+		<br><br>Tolerance<br>
+		  Quantity (between 0.0001 and 0.1):
+		  <input type="number" name="tol" min="0.00001" max="0.1" step="0.00001" value="0.0001">
+
+	<p><b>3. Click run</b></p>
+<input id="progress-bar-trigger" type="submit" class="btn" value="Run" name="run_btn" onclick="check()">
+<div id="progress-wrapper">
+  <div id="progress-bar" style="background-color: blue; width: 0%;">&nbsp;</div>
+  <div id="progress-bar-message">Waiting for progress to start...</div>
+</div>
+
+</form>
+
+<nobr/>
+</body>
+</html>
