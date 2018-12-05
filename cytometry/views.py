@@ -6,88 +6,108 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 from django.contrib import messages
-from .models import Document
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-import os.path
-from cytometry import grouping
-from .forms import DocumentForm, MyForm
 from django.conf import settings
-import glob
+from .models import Document
 from celery import shared_task,current_task
 from celery import task
+from celery_progress.backend import Progress
+import os.path
+import glob
+import json
+from cytometry import grouping
+from .forms import DocumentForm, MyForm
+
+'''
+run() gets all parameters to the algorithm from POST:
+	0. file name
+	1. type of algorithm
+	2. parameters
+	3. evaluations type
+
+then run() start task
+
+next render site with form (because we must know dimension names)
+
+TODO : shoud get type of algorithm, and do diffrent things depend on it
+'''
 
 def run(request):
-    #if(not ('option[]' in request.POST)):
-    #    documents = Document.objects.all()
-    #    form = DocumentForm(request.POST, request.FILES)
-    #    return render(request, 'cytometry/form.html', {'documents': documents, 'form': form})
-    name = request.POST.getlist('option[]')
-    split = name[0].split(']')
-    name = split[0]
-    path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name
-    if('n_clusters_unknown' in request.POST):
-        n_clusters = 0
-        f = int(request.POST['from'])
-        t = int(request.POST['to'])	
-    else:
-        n_clusters = int(request.POST['n_clusters'])
-        f = 0
-        t = 0
-    n_init = int(request.POST['n_init'])
-    max_iter = int(request.POST['max_iter'])
-    tol = float(request.POST['tol'])
-    grouping.kmeans(path_file, n_clusters, n_init, max_iter, tol, f, t)
-    form = MyForm(path_file)
-    return render(request, 'cytometry/form.html',  {'form': form, 'name': name, 'step' : 2})
+	name = request.POST.getlist('option[]')
+	split = name[0].split(']')
+	name = split[0]
+	path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name
 
-def calculate(request):
-    checks = request.POST.getlist('checks[]')
-    name = request.POST.getlist('option[]')
-    print(name[0])
-    path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name[0]
+	checks = request.POST.getlist('checks[]')
+	if('n_clusters_unknown' in request.POST):
+		n_clusters = 0
+		from_val = int(request.POST['from'])
+		to_val = int(request.POST['to'])	
+	else:
+		n_clusters = int(request.POST['n_clusters'])
+		from_val = 0
+		to_val = 0
+	n_init = int(request.POST['n_init'])
+	max_iter = int(request.POST['max_iter'])
+	tol = float(request.POST['tol'])
+	form = MyForm(path_file)
 
-    grouping.validate(checks,path_file)
-    return render(request, 'cytometry/evaluation.html')
-
+	grouping.kmeans(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks)
+	return render(request, 'cytometry/form.html',  {'form': form, 'name': name, 'step' : 2})
+'''
+show() gets chart parameter, create chart, save it to file, and render 
+'''
 def show(request):
-    flag = False
-    dim_1 = -1
-    dim_2 = -1
-    dim_3 = -1
-    if('pca' in request.POST):
-        flag = True
-    dim = request.POST['dim']
-    if(flag != True):
-        dim_1 = request.POST['first_dim']
-        if(int(dim) == 2):        
-            dim_2 = request.POST['second_dim']
-        if(int(dim) == 3):
-            dim_2 = request.POST['second_dim']
-            dim_3 = request.POST['third_dim']
+	flag = False
+	dim_1 = -1
+	dim_2 = -1
+	dim_3 = -1
+	if('pca' in request.POST):
+		flag = True
+	dim = request.POST['dim']
+	if(flag != True):
+		dim_1 = request.POST['first_dim']
+		if(int(dim) == 2):        
+			dim_2 = request.POST['second_dim']
+		if(int(dim) == 3):
+			dim_2 = request.POST['second_dim']
+			dim_3 = request.POST['third_dim']
 
-    name = request.POST.getlist('option[]')
-    print(name[0])
-    path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name[0]
+	name = request.POST.getlist('option[]')
+	print(name)
+	path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name[0]
 
-    grouping.image_create(dim, flag, dim_1, dim_2, dim_3,path_file)
-    return render(request, 'cytometry/result.html')
+	grouping.image_create(dim, flag, dim_1, dim_2, dim_3,path_file)
+	return render(request, 'cytometry/result.html')
 
+
+'''
+upload_file() is run 
+	1. when site is visited first time 
+	2. if we get POST from upload button
+	3. if someone refresh form (send POST agian)
+
+is these cases we do
+	1. render site only with form (step 0)
+	2. add uploaded file to media directory, render site with file name (step 1)
+	3. same as above, but previously displays an alert 
+
+TODO : should check file name, wheather it have / or [] or is not fcs or is too big
+'''
 def upload_file(request):
-    documents = Document.objects.all()
-    if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            newdoc = Document(docfile = request.FILES['docfile'])
-            newdoc.save()
-            name = newdoc.__unicode__()
-            split = name.split('/')
-            name = split[1]
-            document = newdoc
-            messages.info(request, 'File uploaded successfully!')
-            return render(request, 'cytometry/form.html', {'name': name, 'step' : 1})
-    else:
-        form = DocumentForm()
-        return render(request, 'cytometry/form.html', {'form': form, 'step' : 0})
-
-# Create your views here.
+	documents = Document.objects.all()
+	if request.method == 'POST':
+		form = DocumentForm(request.POST, request.FILES)
+		if form.is_valid():
+			newdoc = Document(docfile = request.FILES['docfile'])
+			newdoc.save()
+			name = newdoc.__unicode__()
+			split = name.split('/')
+			name = split[1]
+			document = newdoc
+			messages.info(request, 'File uploaded successfully!')
+			return render(request, 'cytometry/form.html', {'name': name, 'step' : 1})
+	else:
+		form = DocumentForm()
+		return render(request, 'cytometry/form.html', {'form': form, 'step' : 0})

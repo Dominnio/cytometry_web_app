@@ -32,9 +32,6 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-import djcelery
-djcelery.setup_loader()
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'djcelery',
 ]
 
 MIDDLEWARE = [
@@ -95,7 +91,7 @@ DATABASES = {
     }
 }
 
-MEDIA_ROOT = '/home/d.orlinski/Documents/repos/cytometry_web_app/media'
+MEDIA_ROOT = '/media/dominik/Nowy/inz/aplikacja/cytometry_web_app/media'
 MEDIA_URL = '/media/'
 
 

@@ -3,20 +3,21 @@ import FlowCal
 import gi
 import time
 import os
+import time
 import pandas as pd
+import numpy as np
+import glob
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
-import numpy as np
 from sklearn.metrics import calinski_harabaz_score
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist, pdist
 from django.conf import settings
-import glob
 from celery import shared_task,current_task
 from celery import task
 
@@ -31,11 +32,13 @@ def determine_number_of_clusters(samples,f,t, n_init, max_iter, tol, _file_path)
 			choose = i
 	return choose
 
-def kmeans(_file_path, _n_clusters, _n_init, _max_iter, _tol, _f, _t): 
+def kmeans(_file_path, _n_clusters, _n_init, _max_iter, _tol, from_val, to_val, checks): 
 	n_clusters = _n_clusters
 	n_init = _n_init
 	max_iter = _max_iter
 	tol = _tol
+	_f = from_val
+	_t = to_val
 
 	fcs_data = FlowCal.io.FCSData(_file_path)
 	samples = np.array(fcs_data, float)
