@@ -95,7 +95,7 @@ DATABASES = {
     }
 }
 
-MEDIA_ROOT = '/media/dominik/Nowy/inz/aplikacja/webproject/media'
+MEDIA_ROOT = '/home/d.orlinski/Documents/repos/cytometry_web_app/media'
 MEDIA_URL = '/media/'
 
 

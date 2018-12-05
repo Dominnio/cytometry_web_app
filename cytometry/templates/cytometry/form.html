@@ -30,6 +30,51 @@
 		}
 	}
 
+	function dim_changed(){
+		var selector = document.getElementById("dim");
+		var value = selector[selector.selectedIndex].value;
+		var pca = document.getElementById("pca");
+		if(value == "1" && pca.checked == false){
+			document.getElementById("first_dim").disabled = false;
+			document.getElementById("second_dim").disabled = true;
+			document.getElementById("third_dim").disabled = true;
+		}
+		if(value == "2"  && pca.checked == false){
+			document.getElementById("second_dim").disabled = false;
+			document.getElementById("third_dim").disabled = true;
+		}
+		if(value == "3"  && pca.checked == false){
+			document.getElementById("second_dim").disabled = false;
+			document.getElementById("third_dim").disabled = false;
+		}
+	}
+	function use_pca(){
+		var selector = document.getElementById("dim");
+		var value = selector[selector.selectedIndex].value;
+		var pca = document.getElementById("pca");
+		if(pca.checked == true){
+			document.getElementById("first_dim").disabled = true;
+			document.getElementById("second_dim").disabled = true;
+			document.getElementById("third_dim").disabled = true;
+		}else{
+			if(value == "1"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = true;
+				document.getElementById("third_dim").disabled = true;
+			}
+			if(value == "2"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = false;
+				document.getElementById("third_dim").disabled = true;
+			}
+			if(value == "3"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = false;
+				document.getElementById("third_dim").disabled = false;
+			}	
+		}
+	}
+
 	function updateProgress(progressBarElement, progressBarMessageElement, progress) {
 	  progressBarElement.style.width = progress.percent + "%";
 	  progressBarMessageElement.innerHTML = progress.current + ' of ' + progress.total + ' processed.';
@@ -47,9 +92,29 @@
 	    })
 	  }
 	})
-
 	</script>
-<body>
+
+<script language="JavaScript">
+function checkRefresh()
+{
+	if( document.refreshForm.visited.value == "" )
+	{
+		// This is a fresh page load
+		document.refreshForm.visited.value = "1";
+		// You may want to add code here special for
+		// fresh page loads
+	}
+	else
+	{
+		// This is a page refresh
+		alert("Refreshing the page you are sending the same file again!")
+		// Insert code here representing what to do on
+		// a refresh
+	}
+} 
+</script>
+
+<body onLoad="JavaScript:checkRefresh();">
 How to use 
 ===================================================
 0. Upload the fcs file
@@ -60,83 +125,131 @@ How to use
 5. Select the charts you want to create
 ===================================================
 <nobr>
-<p><b>0. Upload the fcs file</b></p>
-<form name='upload_btn' action="{% url 'cytometry:upload_file' %}" method="post" enctype="multipart/form-data">
-{% csrf_token %}
-	<p>{{ form.non_field_errors }}</p>
-	<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
-	<p>
-	{{ form.docfile.errors }}
-	{{ form.docfile }}
-	</p>
-	{% if form %}
-		<p><input type="submit" value="Upload" /></p>
-	{% endif %}
+<form name="refreshForm">
+<input type="hidden" name="visited" value="" />
 </form>
+{% if step == 0 %}
+	<p><b>0. Upload the fcs file</b></p>
+	<form name='upload_btn' id='upload_form' action="{% url 'cytometry:upload_file' %}" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+		<p>{{ form.non_field_errors }}</p>
+		<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+		<p>
+		{{ form.docfile.errors }}
+		{{ form.docfile }}
+		</p>
+		<p><input type="submit" class="btn" value="Upload" name="upload_btn"></p>
+	</form>
+{% endif %}
 
-<form action = "{% url 'cytometry:run' %}" method="post">
+{% if step == 1 %}
+
+	<form action = "{% url 'cytometry:run' %}" method="post">
+	{% csrf_token %}
+		
+		<ul>
+		<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
+		</ul>
+		<!--
+		{% if messages %}
+		    {% for message in messages %}
+		    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+		    {% endfor %}
+		{% endif %}
+		-->
+
+		<p><b>1. Select the grouping algorithm</b></p>
+			  <select>
+			    <option value="Kmeans">Kmeans</option>
+			  </select> 
+		
+		<p><b>2. Set the parameters of algorithm</b></p>
+			The number of clusters
+			  <input type="checkbox" id="noc" name="n_clusters_unknown" onclick="determinate_number_of_cluster()">Unknown
+			  <script>
+				document.getElementById("noc").checked = false; 
+			  </script>
+			  | from<input type="number" id="from" name="from" min="2" max="99" disabled="disabled" value=2>
+			  to<input type="number" id="to" name="to" min="3" max="100" disabled="disabled" value=7>
+			  <script>
+				document.getElementById("from").disabled = true;
+				document.getElementById("to").disabled = true;
+			  </script>
+			  <br>
+			  Quantity (between 2 and 20):
+			  <input type="number" id="n_clusters" name="n_clusters" min="2" max="100" value=5>
+		
+			<br><br>The number of initializations<br>
+			  Quantity (between 1 and 100):
+			  <input type="number" name="n_init" min="1" max="100" value="10">
+		
+			<br><br>The maximum number of iterations<br>
+			  Quantity (between 1 and 300):
+			  <input type="number" name="max_iter" min="1" max="1000"  value="300">
+
+			<br><br>Tolerance<br>
+			  Quantity (between 0.0001 and 0.1):
+			  <input type="number" name="tol" min="0.00001" max="0.1" step="0.00001" value="0.0001">
+
+		<p><b>3. Click run</b></p>
+	<input id="progress-bar-trigger" type="submit" class="btn" value="Run" name="run_btn" onclick="check()">
+	<div id="progress-wrapper">
+	  <div id="progress-bar" style="background-color: blue; width: 0%;">&nbsp;</div>
+	  <div id="progress-bar-message">Waiting for progress to start...</div>
+	</div>
+
+	</form>
+
+{% endif %}
+
+{% if step == 2 %}
+
+<!--
+<form action = "{% url 'cytometry:calculate' %}" method="post">
 {% csrf_token %}
-	<script>
-		isDoc = false
-	</script>
-	{% if document %}
-	<ul>
-		<li>{{ document.docfile.name }} <input type='hidden' name="option[]" value="{{ document.docfile.url }}"><a href="{{ document.docfile.url }}"/></a></li>
-		<script>
-			isDoc = true
-		</script>
-	</ul>
-	{% else %}
-	<p>No document.</p>
-	{% endif %}
-
-	{% if messages %}
-	    {% for message in messages %}
-	    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-	    {% endfor %}
-	{% endif %}
-
-	<p><b>1. Select the grouping algorithm</b></p>
-		  <select>
-		    <option value="Kmeans">Kmeans</option>
-		  </select> 
-		
-	<p><b>2. Set the parameters of algorithm</b></p>
-		The number of clusters
-		  <input type="checkbox" id="noc" name="n_clusters_unknown" onclick="determinate_number_of_cluster()">Unknown
-		  <script>
-			document.getElementById("noc").checked = false; 
-	          </script>
-	          | from<input type="number" id="from" name="from" min="2" max="99" disabled="disabled" value=2>
-		  to<input type="number" id="to" name="to" min="3" max="100" disabled="disabled" value=7>
-		  <script>
-			document.getElementById("from").disabled = true;
-			document.getElementById("to").disabled = true;
-	          </script>
-		  <br>
-		  Quantity (between 2 and 20):
-		  <input type="number" id="n_clusters" name="n_clusters" min="2" max="100" value=5>
-		
-		<br><br>The number of initializations<br>
-		  Quantity (between 1 and 100):
-		  <input type="number" name="n_init" min="1" max="100" value="10">
-		
-		<br><br>The maximum number of iterations<br>
-		  Quantity (between 1 and 300):
-		  <input type="number" name="max_iter" min="1" max="1000"  value="300">
-
-		<br><br>Tolerance<br>
-		  Quantity (between 0.0001 and 0.1):
-		  <input type="number" name="tol" min="0.00001" max="0.1" step="0.00001" value="0.0001">
-
-	<p><b>3. Click run</b></p>
-<input id="progress-bar-trigger" type="submit" class="btn" value="Run" name="run_btn" onclick="check()">
-<div id="progress-wrapper">
-  <div id="progress-bar" style="background-color: blue; width: 0%;">&nbsp;</div>
-  <div id="progress-bar-message">Waiting for progress to start...</div>
-</div>
-
+<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
+	<p><b>4. Select methods for evaluating the solution</b></p>
+	<input type="checkbox" id="WCSS" name="checks[]" value="1">WCSS<br>
+	<input type="checkbox" id="BCSS" name="checks[]" value="2">BCSS<br>
+	<input type="checkbox" id="Calinski-Harabasz" name="checks[]" value="3">Calinski-Harabasz<br>
+	<input type="checkbox" id="Davies-Bouldin" name="checks[]" value="4">Davies-Bouldin<br>
+	<input type="checkbox" id="Silhouette" name="checks[]" value="5">Silhouette<br>
+<input type="submit" class="btn" value="Calculate" name="calculate_btn">
 </form>
+-->
+	<form action = "{% url 'cytometry:show' %}" method="post">
+	{% csrf_token %}
+		<ul>
+		<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
+		</ul>
+
+		<p><b>5. Select the grahps you want to create</b></p>
+		<select onchange="dim_changed()" name = "dim" id = "dim">
+		    <option value="1">histogram</option>
+		    <option value="2">2D graph</option>
+		    <option value="3">3D graph</option>
+		</select>
+		<input type="checkbox" id="pca" name="pca" value="pca" onclick="use_pca()">use PCA
+	
+		<select name = "first_dim" id="first_dim">
+		{% for choice in form.my_choice_field.field.choices %}
+		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+		{% endfor %}
+		</select>
+		<select name = "second_dim" id="second_dim" disabled="disabled">
+		{% for choice in form.my_choice_field.field.choices %}
+		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+		{% endfor %}
+		</select>
+		<select name = "third_dim" id="third_dim" disabled="disabled">
+		{% for choice in form.my_choice_field.field.choices %}
+		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+		{% endfor %}
+		</select><br>
+	<input type="submit" class="btn" value="Show" name="show_btn">
+	</form>
+
+{% endif %}
 
 <nobr/>
 </body>

@@ -49,8 +49,8 @@ def kmeans(_file_path, _n_clusters, _n_init, _max_iter, _tol, _f, _t):
 	result_path = settings.MEDIA_ROOT + "/documents/result_centers.txt"
 	np.savetxt(result_path, kmeans.cluster_centers_.astype(float))	
 
-def validate(checks):
-	fcs_data = FlowCal.io.FCSData(glob.glob(settings.MEDIA_ROOT + "/documents/*")[0])
+def validate(checks,path_file):
+	fcs_data = FlowCal.io.FCSData(path_file)
 	channels = fcs_data.channels
 	samples = np.array(fcs_data, float)
 
@@ -64,7 +64,7 @@ def validate(checks):
 	result_path = settings.MEDIA_ROOT + "/documents/result_centers.txt"
 	cluster_centers_ = np.loadtxt(result_path)
 
-	f = open('/media/dominik/Nowy/inz/aplikacja/webproject/cytometry/templates/cytometry/evaluation.html','w')
+	f = open(settings.MEDIA_ROOT + '/../cytometry/templates/cytometry/evaluation.html','w')
 	for i in range(len(checks)):
 		if(checks[i] == '1'):
 			a = [cdist(samples, cluster_centers_, 'euclidean')]
@@ -91,14 +91,14 @@ def validate(checks):
 			f.write("<p>Silhouette score is = " + str(silhouette) + "</p>")	
 	f.close()
 
-def image_create(dim, pca, dim_1, dim_2, dim_3):
+def image_create(dim, pca, dim_1, dim_2, dim_3,path_file):
 	fig = plt.figure()
 
-	fcs_data = FlowCal.io.FCSData(glob.glob(settings.MEDIA_ROOT + "/documents/*")[0])
+	fcs_data = FlowCal.io.FCSData(path_file)
 	channels = fcs_data.channels
 	samples = np.array(fcs_data, float)
 
-	result_path = "/media/dominik/Nowy/inz/aplikacja/webproject/media/documents/result_labels.txt"
+	result_path = settings.MEDIA_ROOT + "/documents/result_labels.txt"
 	theFile = open(result_path, "r")
 	labels = []
 	for val in theFile.read().split():
@@ -146,5 +146,5 @@ def image_create(dim, pca, dim_1, dim_2, dim_3):
 
 	plt.title('KMeans')
 	plt.grid(True)
-	plt.savefig('/media/dominik/Nowy/inz/aplikacja/webproject/cytometry/static/cytometry/images/real_data_result.png')
+	plt.savefig(settings.MEDIA_ROOT + '/../cytometry/static/cytometry/images/real_data_result.png')
 

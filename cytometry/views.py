@@ -18,13 +18,14 @@ from celery import shared_task,current_task
 from celery import task
 
 def run(request):
-    if(not ('option[]' in request.POST)):
-        documents = Document.objects.all()
-        form = DocumentForm(request.POST, request.FILES)
-        return render(request, 'cytometry/form.html', {'documents': documents, 'form': form})
-    opt = request.POST.getlist('option[]')
-    split = opt[0].split('/')
-    path_file = settings.MEDIA_ROOT +  '/' + split[2] + '/' +  split[3]
+    #if(not ('option[]' in request.POST)):
+    #    documents = Document.objects.all()
+    #    form = DocumentForm(request.POST, request.FILES)
+    #    return render(request, 'cytometry/form.html', {'documents': documents, 'form': form})
+    name = request.POST.getlist('option[]')
+    split = name[0].split(']')
+    name = split[0]
+    path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name
     if('n_clusters_unknown' in request.POST):
         n_clusters = 0
         f = int(request.POST['from'])
@@ -38,12 +39,15 @@ def run(request):
     tol = float(request.POST['tol'])
     grouping.kmeans(path_file, n_clusters, n_init, max_iter, tol, f, t)
     form = MyForm(path_file)
-
-    return render(request, 'cytometry/launched.html', {'form' : form})
+    return render(request, 'cytometry/form.html',  {'form': form, 'name': name, 'step' : 2})
 
 def calculate(request):
     checks = request.POST.getlist('checks[]')
-    grouping.validate(checks)
+    name = request.POST.getlist('option[]')
+    print(name[0])
+    path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name[0]
+
+    grouping.validate(checks,path_file)
     return render(request, 'cytometry/evaluation.html')
 
 def show(request):
@@ -61,24 +65,29 @@ def show(request):
         if(int(dim) == 3):
             dim_2 = request.POST['second_dim']
             dim_3 = request.POST['third_dim']
-    grouping.image_create(dim, flag, dim_1, dim_2, dim_3)
+
+    name = request.POST.getlist('option[]')
+    print(name[0])
+    path_file = settings.MEDIA_ROOT +  '/' + 'documents' + '/' +  name[0]
+
+    grouping.image_create(dim, flag, dim_1, dim_2, dim_3,path_file)
     return render(request, 'cytometry/result.html')
 
 def upload_file(request):
     documents = Document.objects.all()
-    for document in documents:
-    	document.delete()
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
             newdoc = Document(docfile = request.FILES['docfile'])
             newdoc.save()
             name = newdoc.__unicode__()
+            split = name.split('/')
+            name = split[1]
             document = newdoc
             messages.info(request, 'File uploaded successfully!')
-            return render(request, 'cytometry/form.html', {'document': document, 'name': name})
+            return render(request, 'cytometry/form.html', {'name': name, 'step' : 1})
     else:
         form = DocumentForm()
-        return render(request, 'cytometry/form.html', {'documents': documents, 'form': form})
+        return render(request, 'cytometry/form.html', {'form': form, 'step' : 0})
 
 # Create your views here.

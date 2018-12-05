@@ -59,6 +59,7 @@
 <nobr>
 <form action = "{% url 'cytometry:calculate' %}" method="post">
 {% csrf_token %}
+<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
 	<p><b>4. Select methods for evaluating the solution</b></p>
 	<input type="checkbox" id="WCSS" name="checks[]" value="1">WCSS<br>
 	<input type="checkbox" id="BCSS" name="checks[]" value="2">BCSS<br>
@@ -70,6 +71,7 @@
 
 <form action = "{% url 'cytometry:show' %}" method="post">
 {% csrf_token %}
+<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
 	<p><b>5. Select the grahps you want to create</b></p>
 	<select onchange="dim_changed()" name = "dim" id = "dim">
             <option value="1">histogram</option>
