@@ -12,12 +12,17 @@ from django.conf import settings
 from .models import Document
 from celery import shared_task,current_task
 from celery import task
-from celery_progress.backend import Progress
+from celery.result import AsyncResult
 import os.path
 import glob
 import json
 from cytometry import grouping
-from .forms import DocumentForm, MyForm
+#from .forms import DocumentForm, MyForm
+#from .forms import UserForm
+#from .tasks import add,fft_random
+
+from . import forms
+from . import tasks
 
 '''
 run() gets all parameters to the algorithm from POST:
@@ -32,6 +37,45 @@ next render site with form (because we must know dimension names)
 
 TODO : shoud get type of algorithm, and do diffrent things depend on it
 '''
+
+def poll_state(request):
+    """ A view to report the progress to the user """
+    data = 'Fail'
+    if request.is_ajax():
+        if 'task_id' in request.POST.keys() and request.POST['task_id']:
+            task_id = request.POST['task_id']
+            task = AsyncResult(task_id)
+            data = task.result or task.state
+        else:
+            data = 'No task_id in the request'
+    else:
+        data = 'This is not an ajax request'
+
+    json_data = json.dumps(data)
+    return HttpResponse(json_data, content_type='application/json')
+
+def index(request):
+    if 'job' in request.GET:
+        job_id = request.GET['job']
+        job = AsyncResult(job_id)
+        data = job.result or job.state
+        context = {
+            'data':data,
+            'task_id':job_id,
+        }
+        return render(request,"show_t.html",context)
+    elif 'n' in request.GET:
+        n = request.GET['n']
+        job = tasks.add.delay(int(n),int(n))
+        task_id = job.id
+        print(job.id)
+        return HttpResponseRedirect('/cytometry/' + '?job=' + job.id)
+    else:
+        form = forms.UserForm()
+        context = {
+            'form':form,
+        }
+        return render(request,"post_form.html",context)
 
 def run(request):
 	name = request.POST.getlist('option[]')
@@ -51,7 +95,7 @@ def run(request):
 	n_init = int(request.POST['n_init'])
 	max_iter = int(request.POST['max_iter'])
 	tol = float(request.POST['tol'])
-	form = MyForm(path_file)
+	form = forms.MyForm(path_file)
 
 	grouping.kmeans(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks)
 	return render(request, 'cytometry/form.html',  {'form': form, 'name': name, 'step' : 2})
@@ -98,7 +142,7 @@ TODO : should check file name, wheather it have / or [] or is not fcs or is too 
 def upload_file(request):
 	documents = Document.objects.all()
 	if request.method == 'POST':
-		form = DocumentForm(request.POST, request.FILES)
+		form = forms.DocumentForm(request.POST, request.FILES)
 		if form.is_valid():
 			newdoc = Document(docfile = request.FILES['docfile'])
 			newdoc.save()
@@ -109,5 +153,5 @@ def upload_file(request):
 			messages.info(request, 'File uploaded successfully!')
 			return render(request, 'cytometry/form.html', {'name': name, 'step' : 1})
 	else:
-		form = DocumentForm()
+		form = forms.DocumentForm()
 		return render(request, 'cytometry/form.html', {'form': form, 'step' : 0})

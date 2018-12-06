@@ -18,8 +18,6 @@ from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist, pdist
 from django.conf import settings
-from celery import shared_task,current_task
-from celery import task
 
 def determine_number_of_clusters(samples,f,t, n_init, max_iter, tol, _file_path):
 	choose = f
