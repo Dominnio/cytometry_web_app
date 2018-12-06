@@ -1,8 +1,0 @@
-To run you need install Rabbit, Celery, Django 
-Need to start task manager by typing : 
-	celery -A tasks worker --loglevel=info
-in /cytometry_web_app/cytometry
-
-Need run server by typing : 
-	python3 manage.py runserver
-in /cytometry_web_app

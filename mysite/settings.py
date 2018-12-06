@@ -32,7 +32,6 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -93,7 +92,7 @@ DATABASES = {
     }
 }
 
-MEDIA_ROOT = '/home/d.orlinski/Documents/repos/cytometry_web_app/media'
+MEDIA_ROOT = '/media/dominik/Nowy/inz/aplikacja/cytometry_web_app/media'
 MEDIA_URL = '/media/'
 
 

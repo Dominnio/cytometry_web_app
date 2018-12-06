@@ -17,6 +17,7 @@ import os.path
 import glob
 import json
 from cytometry import grouping
+from .tasks import add,fft_random
 #from .forms import DocumentForm, MyForm
 #from .forms import UserForm
 #from .tasks import add,fft_random
@@ -66,9 +67,7 @@ def index(request):
         return render(request,"show_t.html",context)
     elif 'n' in request.GET:
         n = request.GET['n']
-        job = tasks.add.delay(int(n),int(n))
-        task_id = job.id
-        print(job.id)
+        job = fft_random.delay(int(n))
         return HttpResponseRedirect('/cytometry/' + '?job=' + job.id)
     else:
         form = forms.UserForm()
