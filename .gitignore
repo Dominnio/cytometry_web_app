@@ -1,0 +1,6 @@
+documents/*
+static/*
+db.sqlite3
+cytometry/__pycache__/*
+cytometry/static/*
+mysite/__pycache__/*

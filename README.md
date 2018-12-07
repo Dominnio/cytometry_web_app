@@ -21,4 +21,4 @@ Now you have to run the Django server. For this purposen in the second terminal,
 
 ```
 
-Now open [http://127.0.0.1:8000/cytometry/form/](http://127.0.0.1:8000/cytometry/form/) and start use app.
+Now open [http://127.0.0.1:8000/cytometry/form_step_0/](http://127.0.0.1:8000/cytometry/form_step_0/) and start use app.
