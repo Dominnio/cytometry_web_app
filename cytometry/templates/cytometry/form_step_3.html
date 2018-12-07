@@ -1,0 +1,165 @@
+<style>
+.progress {
+  width: 100%;
+  background-color: #ddd;
+}
+
+.bar {
+  width: 1%;
+  height: 30px;
+  background-color: #4CAF50;
+  text-align:right;
+}
+ </style>
+<pre>
+<h2 style="margin-top: 0, margin-bottom: 0">Welcome to the cytometric data grouping tool.</h2>
+How to use 
+===================================================
+0. Upload the fcs file
+1. Select the grouping algorithm
+2. Set the parameters of algorithm
+3. Set type of evaluation
+4. Click run
+5. Wait
+<b>6. Inspect result
+7. Select the charts you want to see</b>
+===================================================
+<nobr>
+<pre lang="html4strict">
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Cytometry Web App</title>
+    </head>
+	<script>
+	function dim_changed(){
+		var selector = document.getElementById("dim");
+		var value = selector[selector.selectedIndex].value;
+		var pca = document.getElementById("pca");
+		if(value == "1" && pca.checked == false){
+			document.getElementById("first_dim").disabled = false;
+			document.getElementById("second_dim").disabled = true;
+			document.getElementById("third_dim").disabled = true;
+		}
+		if(value == "2"  && pca.checked == false){
+			document.getElementById("second_dim").disabled = false;
+			document.getElementById("third_dim").disabled = true;
+		}
+		if(value == "3"  && pca.checked == false){
+			document.getElementById("second_dim").disabled = false;
+			document.getElementById("third_dim").disabled = false;
+		}
+	}
+	function use_pca(){
+		var selector = document.getElementById("dim");
+		var value = selector[selector.selectedIndex].value;
+		var pca = document.getElementById("pca");
+		if(pca.checked == true){
+			document.getElementById("first_dim").disabled = true;
+			document.getElementById("second_dim").disabled = true;
+			document.getElementById("third_dim").disabled = true;
+		}else{
+			if(value == "1"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = true;
+				document.getElementById("third_dim").disabled = true;
+			}
+			if(value == "2"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = false;
+				document.getElementById("third_dim").disabled = true;
+			}
+			if(value == "3"){
+				document.getElementById("first_dim").disabled = false;
+				document.getElementById("second_dim").disabled = false;
+				document.getElementById("third_dim").disabled = false;
+			}	
+		}
+	}
+	</script>
+
+<script language="JavaScript">
+function checkRefresh()
+{
+	if( document.refreshForm.visited.value == "" )
+	{
+		// This is a fresh page load
+		document.refreshForm.visited.value = "1";
+		// You may want to add code here special for
+		// fresh page loads
+	}
+	else
+	{
+		// This is a page refresh
+		alert("Refreshing the page you are doing the same action!")
+		// Insert code here representing what to do on
+		// a refresh
+	}
+} 
+</script>
+<body onLoad="JavaScript:checkRefresh();">
+<form name="refreshForm">
+<input type="hidden" name="visited" value="" />
+</form>
+	<form action = "{% url 'cytometry:show' %}" method="post">
+	<b>Uploded file: </b> <br>
+	<ul>
+	<li>{{ name }} <input type='hidden' id="name" name="option[]" value="{{ name }}"></li>
+	</ul>
+
+	<p><b>6. Result</b></p>
+	Cluster number: <br>
+	Clusters prameters:
+	<ul>
+		<li>1. cluster</li>
+		<li>2. cluster</li>
+		<li>3. cluster</li>
+	</ul>
+	<br>
+	Silhouette score: <br>
+	
+	{% csrf_token %}
+		<p><b>7. Select the grahps you want to create</b></p>
+		<select onchange="dim_changed()" name = "dim" id = "dim">
+		    <option value="1">histogram</option>
+		    <option value="2">2D graph</option>
+		    <option value="3">3D graph</option>
+		</select>
+		<input type="checkbox" id="pca" name="pca" value="pca" onclick="use_pca()">use PCA
+		<select name = "first_dim" id="first_dim">
+		{% for choice in form.my_choice_field.field.choices %}
+		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+		{% endfor %}
+		</select>
+		<select name = "second_dim" id="second_dim" disabled="disabled">
+		{% for choice in form.my_choice_field.field.choices %}
+		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+		{% endfor %}
+		</select>
+		<select name = "third_dim" id="third_dim" disabled="disabled">
+		{% for choice in form.my_choice_field.field.choices %}
+		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+		{% endfor %}
+		</select><br>
+	<input type="submit" class="btn" value="Show" name="show_btn">
+	</form>
+<nobr/>
+{% if img %}
+{% load static %}
+	<img id=myImg src="" alt="My image">
+<script>
+function myFunction() {
+    name = document.getElementById("name").value
+    name = "real_data_result_" + name + ".png"
+    document.getElementById("myImg").src = "/static/" + name;
+}
+myFunction();
+</script>
+
+{% endif %}
+
+
+
+</body>
+</html>

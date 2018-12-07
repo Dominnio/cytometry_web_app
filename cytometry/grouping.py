@@ -30,39 +30,32 @@ def determine_number_of_clusters(samples,f,t, n_init, max_iter, tol, _file_path)
 			choose = i
 	return choose
 
-def kmeans(_file_path, _n_clusters, _n_init, _max_iter, _tol, from_val, to_val, checks): 
-	n_clusters = _n_clusters
-	n_init = _n_init
-	max_iter = _max_iter
-	tol = _tol
-	_f = from_val
-	_t = to_val
-
-	fcs_data = FlowCal.io.FCSData(_file_path)
+def kmeans(file_path, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name): 
+	fcs_data = FlowCal.io.FCSData(file_path)
 	samples = np.array(fcs_data, float)
-	if(_n_clusters == 0):
-		_n_clusters = determine_number_of_clusters(samples,_f,_t, _n_init, _max_iter, _tol, _file_path)
-	kmeans = KMeans(n_clusters=_n_clusters,n_init=n_init,max_iter=max_iter,tol=tol).fit(samples)
+	if(n_clusters == 0):
+		n_clusters = determine_number_of_clusters(samples, from_val, to_val, n_init, max_iter, tol, file_path)
+	kmeans = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, tol=tol).fit(samples)
 	
-	result_path = settings.MEDIA_ROOT + "/documents/result_labels.txt"
+	result_path = settings.MEDIA_ROOT + '/result_labels_' + name + '.txt'
 	np.savetxt(result_path, kmeans.labels_.astype(int), fmt="%i")	
 
-	result_path = settings.MEDIA_ROOT + "/documents/result_centers.txt"
-	np.savetxt(result_path, kmeans.cluster_centers_.astype(float))	
+	result_path = settings.MEDIA_ROOT + '/result_centers_' + name + '.txt'
+	np.savetxt(result_path, kmeans.cluster_centers_.astype(float))
 
 def validate(checks,path_file):
 	fcs_data = FlowCal.io.FCSData(path_file)
 	channels = fcs_data.channels
 	samples = np.array(fcs_data, float)
 
-	result_path = settings.MEDIA_ROOT + "/documents/result_labels.txt"
+	result_path = settings.MEDIA_ROOT + "/result_labels.txt"
 	theFile = open(result_path, "r")
 	labels = []
 	for val in theFile.read().split():
 	    labels.append(int(val))
 	theFile.close()
 
-	result_path = settings.MEDIA_ROOT + "/documents/result_centers.txt"
+	result_path = settings.MEDIA_ROOT + "/result_centers.txt"
 	cluster_centers_ = np.loadtxt(result_path)
 
 	f = open(settings.MEDIA_ROOT + '/../cytometry/templates/cytometry/evaluation.html','w')
@@ -92,14 +85,14 @@ def validate(checks,path_file):
 			f.write("<p>Silhouette score is = " + str(silhouette) + "</p>")	
 	f.close()
 
-def image_create(dim, pca, dim_1, dim_2, dim_3,path_file):
+def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name):
 	fig = plt.figure()
 
 	fcs_data = FlowCal.io.FCSData(path_file)
 	channels = fcs_data.channels
 	samples = np.array(fcs_data, float)
 
-	result_path = settings.MEDIA_ROOT + "/documents/result_labels.txt"
+	result_path = settings.MEDIA_ROOT + "/result_labels_" + name + ".txt"
 	theFile = open(result_path, "r")
 	labels = []
 	for val in theFile.read().split():
@@ -147,5 +140,6 @@ def image_create(dim, pca, dim_1, dim_2, dim_3,path_file):
 
 	plt.title('KMeans')
 	plt.grid(True)
-	plt.savefig(settings.MEDIA_ROOT + '/../cytometry/static/cytometry/images/real_data_result.png')
+	plt.savefig(settings.STATIC_ROOT + '/../cytometry/static/real_data_result_' + name + '.png')
+	return (settings.STATIC_ROOT + '/../cytometry/static/real_data_result_' + name + '.png')
 
