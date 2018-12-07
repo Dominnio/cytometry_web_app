@@ -13,7 +13,4 @@ class Document(models.Model):
         os.remove(os.path.join(settings.MEDIA_ROOT, self.docfile.name))
         super(Document,self).delete(*args,**kwargs)
 
-class Calcu(models.Model):
-    n = models.CharField(max_length=10)
-
 # Create your models here.

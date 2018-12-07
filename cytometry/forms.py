@@ -1,5 +1,4 @@
 from django import forms
-from .models import Calcu
 import FlowCal
 
 def get_my_choices(path_file):
@@ -21,10 +20,3 @@ class DocumentForm(forms.Form):
         label='Select & upload a file',
         help_text='file should be in the fcs format & have max. 10 megabytes'
     )
-
-class UserForm(forms.ModelForm):
-    class Meta:
-        model = Calcu
-        fields = [
-            "n",
-        ]

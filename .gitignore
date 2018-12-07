@@ -1,7 +1,7 @@
 documents/*.fcs.txt
 documents/*.fcs
 static/*.fcs.png
-db.sqlite3
-cytometry/__pycache__/*
 cytometry/static/*.fcs.png
+cytometry/__pycache__/*
 mysite/__pycache__/*
+db.sqlite3

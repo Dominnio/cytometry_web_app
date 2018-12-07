@@ -17,11 +17,7 @@ import os.path
 import glob
 import json
 from cytometry import grouping
-from .tasks import add,fft_random,kmeans
-#from .forms import DocumentForm, MyForm
-#from .forms import UserForm
-#from .tasks import add,fft_random
-
+from .tasks import kmeans
 from . import forms
 from . import tasks
 
@@ -129,7 +125,6 @@ def run(request):
 	tol = float(request.POST['tol'])
 	form = forms.MyForm(path_file)
 
-	#job = fft_random.delay(int(2000))
 	job = kmeans.delay(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name)
 	return HttpResponseRedirect('/cytometry/' + '?job=' + job.id + '&file=' + name)
 

@@ -36,7 +36,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 INSTALLED_APPS = [
     'cytometry',
-    #'cytometry.apps.CytometryConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

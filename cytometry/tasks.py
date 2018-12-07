@@ -23,26 +23,6 @@ from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist, pdist
 from django.conf import settings
 
-
-@task
-def fft_random(n):
-    """
-    Brainless number crunching just to have a substantial task:
-    """
-    for i in range(n):
-        x = random.normal(0, 0.1, 2000)
-        y = fft(x)
-        if(i%2 == 0):
-            process_percent = int(100 * float(i) / float(n))
-            current_task.update_state(state='PROGRESS', meta={'process_percent': process_percent})
-    return random.random()
-
-@shared_task
-def add(x,y):
-    for i in range(1000000000):
-        a = x+y
-    return x+y
-
 def determine_number_of_clusters(samples,f,t, n_init, max_iter, tol, _file_path):
 	choose = f
 	silhouette_best = 0
