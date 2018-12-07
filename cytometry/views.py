@@ -53,15 +53,18 @@ def show(request):
 	grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name)
 
 	img = 1
-	return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : img})
+	return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : img, 'result': result})
 
 def result(request):
 	name = request.POST.getlist('option[]')
 	split = name[0].split(']')
 	name = split[0]
 	path_file = settings.MEDIA_ROOT + '/' +  name
+
+	result = forms.ResultForm(name)
+
 	form = forms.MyForm(path_file)
-	return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name})
+	return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result})
 
 def process_state(request):
     """ A view to report the progress to the user """
