@@ -140,6 +140,6 @@ def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name):
 
 	plt.title('KMeans')
 	plt.grid(True)
-	plt.savefig(settings.MEDIA_ROOT + '/../cytometry/static/real_data_result_' + name + '.png')
-	return (settings.MEDIA_ROOT + '/../cytometry/static/real_data_result_' + name + '.png')
+	plt.savefig(settings.STATIC_ROOT + '/cytometry/static/real_data_result_' + name + '.png')
+	return (settings.STATIC_ROOT + '/cytometry/static/real_data_result_' + name + '.png')
 
