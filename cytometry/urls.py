@@ -5,6 +5,7 @@ from . import views
 
 app_name = 'cytometry'
 urlpatterns = [
+    path('file/', views.show_file, name='show_file'),
     path('form_step_0/', views.start, name='start'),
     path('form_step_1/', views.upload_file, name='upload_file'),
     path('form_step_2/', views.run, name='run'),

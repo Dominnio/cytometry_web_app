@@ -89,7 +89,7 @@ function checkRefresh()
 	{% csrf_token %}
 		<b>Uploded file: </b> <br>
 		<ul>
-		<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
+		<a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
 		</ul>
 		<!--
 		{% if messages %}

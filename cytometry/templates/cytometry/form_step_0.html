@@ -24,10 +24,30 @@ function checkRefresh()
 {
 
 } 
+
+function wrongFile()
+{
+	alert("Wrong file name or format! \nFile should be in FCS format. \nName can't contain '[', ']', '/'.")
+}
+
+function tooBig()
+{
+	alert("File is too big.\nMax size of file is 10 megabytes.")
+}
 </script>
 <body onLoad="JavaScript:checkRefresh();">
 <form name="refreshForm">
 <input type="hidden" name="visited" value="" />
+{% if wrong_file %}
+	<script>
+	wrongFile()
+	</script>
+{% endif %}
+{% if too_big %}
+	<script>
+	tooBig()
+	</script>
+{% endif %}
 </form>
 	<p><b>0. Upload the fcs file</b></p>
 	<form name='upload_btn' id='upload_form' action="{% url 'cytometry:upload_file' %}" method="post" enctype="multipart/form-data">

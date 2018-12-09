@@ -25,6 +25,12 @@ How to use
 7. Select the charts you want to see</b>
 ===================================================
 <nobr>
+<form action = "{% url 'cytometry:start' %}" method="post">
+{% csrf_token %}
+<input id="back_btn" type="submit" value="Back to begin" name="back_btn" onclick="back()">
+</form>
+</nobr>
+<nobr>
 <pre lang="html4strict">
 <!DOCTYPE html>
 <html>
@@ -109,12 +115,14 @@ function checkRefresh()
 	</ul>
 
 	<p><b>6. Result</b></p>
-	Cluster number: {{ result.general }}<br><br>
+	Cluster number: {{ result.n_clusters }}<br><br>
 	Clusters prameters:
 	<ol>
-		{% for cluster in result.sizes %}
-		  <li> Cluster: 
-		<br> Number of cells: {{ cluster }}</li><br>
+		{% for cluster in result.clusters %}
+		  <li> Cluster 
+		<br> Number of cells: {{ cluster.number_of_cells }}<br>
+		Center: {{ cluster.center }}	
+		</li><br>		
 		{% endfor %}
 	</ol>
 	Silhouette score: <br>
@@ -155,10 +163,23 @@ function myFunction() {
 }
 myFunction();
 </script>
-
 {% endif %}
 
+{% if 3_dim %}
 
+<form action = "{% url 'cytometry:show' %}" method="post">
+<div class="slidecontainer">
+  x: <input type="range" min="-180" max="180" value="0" class="slider" name="myRange_x" id="myRange_x">
+</div>
+<div class="slidecontainer">
+  y: <input type="range" min="-180" max="180" value="0" class="slider" name="myRange_y" id="myRange_y">
+</div>
+<div class="slidecontainer">
+  z: <input type="range" min="-180" max="180" value="0" class="slider" name="myRange_z" id="myRange_z">
+</div>
+</form>
+
+{% endif %}
 
 </body>
 </html>

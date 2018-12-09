@@ -91,6 +91,7 @@ def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name):
 	fcs_data = FlowCal.io.FCSData(path_file)
 	channels = fcs_data.channels
 	samples = np.array(fcs_data, float)
+	samples = preprocessing.scale(samples, axis=0)
 
 	result_path = settings.MEDIA_ROOT + "/result_labels_" + name + ".txt"
 	theFile = open(result_path, "r")

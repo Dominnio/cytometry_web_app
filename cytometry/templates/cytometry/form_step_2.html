@@ -86,6 +86,15 @@ function post(path, data) {
 	<input id="returnBtn" type="submit" value="Show result" style="visibility:hidden; margin-top:10px;">
 </form>
 
+<!--
+<form action = "{% url 'cytometry:upload_file' %}" method="post">
+	{% csrf_token %}
+	<input type='hidden' id="task_id" name="task_id" value="{{ task_id }}"></li>
+	<input type='hidden' id=f_name name="f_name" value="{{ name }}"></li>
+	<input type="submit" name="cancel" value="Calcel task" />
+</form>
+-->
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 <script type="text/javascript">
    var poll_xhr;
