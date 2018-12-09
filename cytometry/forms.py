@@ -86,7 +86,15 @@ def get_clusters(name):
 
 	return clusters
 
+def get_checks(name):
+	path_to_checks = settings.MEDIA_ROOT + "/result_checks_" + name + ".txt"
+	with open(path_to_checks) as textFile:
+		lines = textFile.readlines()
+	print(lines)
+	return lines
+
 class ResultForm(forms.Form):
 	def __init__(self, *args, **kwargs):
 		self.n_clusters = get_number_of_cluster(args[0])
 		self.clusters = get_clusters(args[0])
+		self.checks = get_checks(args[0])

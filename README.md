@@ -30,4 +30,4 @@ If you want, you can make site accessible in your LAN. In this case, start the s
 ```
   python3 manage.py runserver 0.0.0.0:8000
 ```
-Then you can open the page from any device in the same network by entering the address [http://192.168.1.20:8000/cytometry/form_step_0/](http://192.168.1.20:8000/cytometry/form_step_0/). 
+Then you can open the page from any device in the same network by entering http://YOUR_IP_ADDRESS:8000/cytometry/form_step_0/

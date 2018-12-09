@@ -21,6 +21,7 @@ from cytometry import grouping
 from .tasks import kmeans
 from . import forms
 from . import tasks
+import matplotlib.pyplot as plt, mpld3
 
 '''
 show() gets chart parameter, create chart, save it to file, and render 
@@ -53,11 +54,11 @@ def show(request):
 
 	result = forms.ResultForm(name)
 
-	grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name)
-
+	fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name)
+	
 	if(int(dim) == 3):
-		return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result, '3_dim' : 1})
-	return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result})
+		return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result})
+	return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result, 'fig': [fig]})
 
 def result(request):
 	name = request.POST.getlist('option[]')
@@ -133,6 +134,7 @@ def run(request):
 	form = forms.MyForm(path_file)
 
 	job = kmeans.delay(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name)
+
 	return HttpResponseRedirect('/cytometry/' + '?job=' + job.id + '&file=' + name)
 
 def show_file(request):
@@ -144,15 +146,13 @@ def show_file(request):
 upload_file() is run  if we get POST from upload button
 
 in these case add uploaded file to media directory and render next site
-
-TODO : should check file name, wheather it have / or [] or is not fcs or is too big
 '''
 def upload_file(request):
-	#if 'task_id' in request.POST:
-	#	task_id = request.POST['task_id']
-	#	name = request.POST['f_name']
-	#	app.control.revoke(task_id, terminate=True)
-	#	return render(request, 'cytometry/form_step_1.html', {'name': name})
+	if 'task_id' in request.POST:
+		task_id = request.POST['task_id']
+		name = request.POST['f_name']
+		app.control.revoke(task_id, terminate=True)
+		return render(request, 'cytometry/form_step_1.html', {'name': name})
 	documents = Document.objects.all()
 	form = forms.DocumentForm(request.POST, request.FILES)
 	if form.is_valid():
@@ -169,14 +169,23 @@ def upload_file(request):
 			return render(request, 'cytometry/form_step_0.html', {'form': form, 'too_big': 1})
 		newdoc.save()
 		document = newdoc
-		name = newdoc.__unicode__()		
+		name = newdoc.__unicode__()
 		messages.info(request, 'File uploaded successfully!')
 		return render(request, 'cytometry/form_step_1.html', {'name': name})
 
+def close(request):
+	print(">>>>>>>>>>>>>>>>>>>>>>>>")
+	name = request.GET['name']
+	if os.path.isfile(settings.MEDIA_ROOT + '/' + name):
+		os.remove(settings.MEDIA_ROOT + '/' + name)
+		os.remove(settings.MEDIA_ROOT + '/result_centers_' + name + '.txt')
+		os.remove(settings.MEDIA_ROOT + '/result_labels_' + name + '.txt')
+	if os.path.isfile(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png'):
+		os.remove(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png')
+
+
 '''
 start() is run  if we visit site first time
-
-TODO : should check file name, wheather it have / or [] or is not fcs or is too big
 '''
 def start(request):
 	form = forms.DocumentForm()

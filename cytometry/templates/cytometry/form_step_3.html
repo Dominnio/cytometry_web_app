@@ -27,6 +27,7 @@ How to use
 <nobr>
 <form action = "{% url 'cytometry:start' %}" method="post">
 {% csrf_token %}
+<input type="hidden" name="name" value="{{ name }}">
 <input id="back_btn" type="submit" value="Back to begin" name="back_btn" onclick="back()">
 </form>
 </nobr>
@@ -37,6 +38,45 @@ How to use
     <head>
         <meta charset="utf-8">
         <title>Cytometry Web App</title>
+
+	<script>
+
+	window.onbeforeunload = function () {
+	    return "Do you really want to close?";
+	};
+	var _wasPageCleanedUp = false;
+	function pageCleanup()
+	{
+	    if (!_wasPageCleanedUp)
+	    {
+		$.ajax({
+		    type: 'GET',
+		    name:
+		    async: false,
+		    url: 'close',
+		    success: function ()
+		    {
+			alert("good bye");
+		        _wasPageCleanedUp = true;
+		    }
+		});
+	    }
+	}
+
+
+	$(window).on('beforeunload', function ()
+	{
+	    //this will work only for Chrome
+	    pageCleanup();
+	});
+
+	$(window).on("unload", function ()
+	{
+	    //this will work for other browsers
+	    pageCleanup();
+	});
+	</script>
+
     </head>
 	<script>
 	function dim_changed(){
@@ -116,10 +156,14 @@ function checkRefresh()
 
 	<p><b>6. Result</b></p>
 	Cluster number: {{ result.n_clusters }}<br><br>
-	Clusters prameters:
-	<ol>
+	{% for check in result.checks %}
+	  <li> {{ check }}<br>
+	</li><br>		
+	{% endfor %}
+	Clusters parameters:
+	<ol>	
 		{% for cluster in result.clusters %}
-		  <li> Cluster 
+		 <li> Cluster 
 		<br> Number of cells: {{ cluster.number_of_cells }}<br>
 		Center: {{ cluster.center }}	
 		</li><br>		
@@ -130,11 +174,11 @@ function checkRefresh()
 		<p><b>7. Select the grahps you want to create</b></p>
 		<select onchange="dim_changed()" name = "dim" id = "dim">
 		    <option value="1">histogram</option>
-		    <option value="2">2D graph</option>
-		    <option value="3">3D graph</option>
+		    <option value="2" selected='selected'>2D graph</option>
+		    <option value="3">3D image</option>
 		</select>
-		<input type="checkbox" id="pca" name="pca" value="pca" onclick="use_pca()">use PCA
-		<select name = "first_dim" id="first_dim">
+		<input type="checkbox" id="pca" name="pca" checked='true' value="pca" onclick="use_pca()">use PCA
+		<select name = "first_dim" id="first_dim" disabled="disabled">
 		{% for choice in form.my_choice_field.field.choices %}
 		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
 		{% endfor %}
@@ -153,32 +197,41 @@ function checkRefresh()
 	</form>
 <nobr/>
 {% if img %}
-{% load static %}
-	<img id=myImg src="" alt="My image">
-<script>
-function myFunction() {
-    name = document.getElementById("name").value
-    name = "real_data_result_" + name + ".png"
-    document.getElementById("myImg").src = "/static/" + name;
-}
-myFunction();
-</script>
-{% endif %}
 
-{% if 3_dim %}
+	<!--	
+	<script>
+	var myWindow;
 
-<form action = "{% url 'cytometry:show' %}" method="post">
-<div class="slidecontainer">
-  x: <input type="range" min="-180" max="180" value="0" class="slider" name="myRange_x" id="myRange_x">
-</div>
-<div class="slidecontainer">
-  y: <input type="range" min="-180" max="180" value="0" class="slider" name="myRange_y" id="myRange_y">
-</div>
-<div class="slidecontainer">
-  z: <input type="range" min="-180" max="180" value="0" class="slider" name="myRange_z" id="myRange_z">
-</div>
-</form>
+	function openWin() {
+	    myWindow = window.open("", "myWindow", "width=200,height=100");
+            myWindow.document.write("<img id=myImg src='' alt='My image'>");
+	    var img = myWindow.document.getElementById("myImg");
+	    img.src = "/static/" + name;
+	}
 
+	openWin()
+	</script>
+	-->
+	
+	{% if fig %}
+
+	{% for elem in fig %}
+	   {{elem|safe}}
+	{% endfor %}
+		
+	{% else %}
+
+	{% load static %}
+		<img id=myImg src="" alt="My image">
+	<script>
+	function myFunction() {
+	    name = document.getElementById("name").value
+	    name = "real_data_result_" + name + ".png"
+	    document.getElementById("myImg").src = "/static/" + name;
+	}
+	myFunction();
+	</script>
+	{% endif %}
 {% endif %}
 
 </body>

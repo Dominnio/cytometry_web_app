@@ -13,4 +13,5 @@ urlpatterns = [
     path('form_step_4/', views.show, name='show'),
     url(r'^$', views.perform,name='perform'),
     url(r'^process_state$', views.process_state,name='process_state'),
+    url(r'^close$', views.close,name='close'),
 ]
