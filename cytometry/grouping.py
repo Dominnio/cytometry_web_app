@@ -9,7 +9,6 @@ import numpy as np
 import glob
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
@@ -17,6 +16,7 @@ from sklearn.metrics import calinski_harabaz_score
 from sklearn.metrics import davies_bouldin_score
 from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist, pdist
+import matplotlib.pyplot as plt, mpld3
 from django.conf import settings
 
 def determine_number_of_clusters(samples,f,t, n_init, max_iter, tol, _file_path):
@@ -60,20 +60,18 @@ def validate(checks,path_file):
 
 	f = open(settings.MEDIA_ROOT + '/../cytometry/templates/cytometry/evaluation.html','w')
 	for i in range(len(checks)):
-		if(checks[i] == '1'):
+		if(checks[i] == '1' or checks[i] == '2'):
 			a = [cdist(samples, cluster_centers_, 'euclidean')]
 			b = [np.min(k, axis=1) for k in a]
 			wss = [sum(d**2) for d in b]
-			wcss = wss[0]
-			f.write("<p>WCSS score is = " + str(wcss) + "</p>")	
-		if(checks[i] == '2'):
-			a = [cdist(samples, cluster_centers_, 'euclidean')]
-			b = [np.min(k, axis=1) for k in a]
-			wcss = [sum(d**2) for d in b]
-			tss = sum(pdist(samples,metric='euclidean')**2)/samples.shape[0]
-			bss = tss - wcss
-			bcss = bss[0]
-			f.write("<p>BCSS score is = " + str(bcss) + "</p>")	
+			if(checks[i] == '1'):
+				wcss = wss[0]
+				f.write("<p>WCSS score is = " + str(wcss) + "</p>")	
+			if(checks[i] == '2'):
+				tss = sum(pdist(samples,metric='euclidean')**2)/samples.shape[0]
+				bss = tss - wcss
+				bcss = bss[0]
+				f.write("<p>BCSS score is = " + str(bcss) + "</p>")	
 		if(checks[i] == '3'):
 			calinski_harabaz = calinski_harabaz_score(samples,labels)
 			f.write("<p>Calinski-Harabasz score is = " + str(calinski_harabaz) + "</p>")	
@@ -142,5 +140,8 @@ def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name):
 	plt.title('KMeans')
 	plt.grid(True)
 	plt.savefig(settings.STATIC_ROOT + '/cytometry/static/real_data_result_' + name + '.png')
-	return (settings.STATIC_ROOT + '/cytometry/static/real_data_result_' + name + '.png')
+
+	print("step 1")
+	html_fig  = mpld3.fig_to_html(fig)
+	return html_fig
 

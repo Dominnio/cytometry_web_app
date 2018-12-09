@@ -65,16 +65,20 @@ function post(path, data) {
 <input type="hidden" name="visited" value="" />
 </form>
 
-<form action = "{% url 'cytometry:result' %}" method="post">
 	<b>Uploded file: </b> <br>
 	<ul>
-	<li>{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></li>
+	<a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
 	</ul>
 
 <p>
   Your Task is <span id="user-count"></span>!
 </p>
-
+<form action = "{% url 'cytometry:upload_file' %}" method="post">
+	{% csrf_token %}
+	<input type='hidden' id="task_id" name="task_id" value="{{ task_id }}"></li>
+	<input type='hidden' id=f_name name="f_name" value="{{ name }}"></li>
+	<input type="submit" id="cancelBtn" name="cancel" value="Cancel task" />
+</form>
 <div class="status"></div>
    {% if task_id %}
    <div class="progress">
@@ -82,19 +86,11 @@ function post(path, data) {
    </div>
    {% endif %}
 </div>
+<form action = "{% url 'cytometry:result' %}" method="post">
+	<input type='hidden' name="option[]" value="{{ name }}"></li>
 	{% csrf_token %}
 	<input id="returnBtn" type="submit" value="Show result" style="visibility:hidden; margin-top:10px;">
 </form>
-
-<!--
-<form action = "{% url 'cytometry:upload_file' %}" method="post">
-	{% csrf_token %}
-	<input type='hidden' id="task_id" name="task_id" value="{{ task_id }}"></li>
-	<input type='hidden' id=f_name name="f_name" value="{{ name }}"></li>
-	<input type="submit" name="cancel" value="Calcel task" />
-</form>
--->
-
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
 <script type="text/javascript">
    var poll_xhr;
@@ -121,6 +117,7 @@ function post(path, data) {
                         jQuery('.bar').css({'width': 100 + '%'});
                         jQuery('.bar').html(100 + '%');
                         document.getElementById('returnBtn').style.visibility = 'visible';
+			document.getElementById('cancelBtn').remove();
 
                        } else {
                          jQuery('.bar').css({'width': result.process_percent + '%'});
