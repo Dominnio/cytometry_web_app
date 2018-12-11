@@ -14,53 +14,44 @@ How to use
 <pre lang="html4strict">
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Cytometry Web App</title>
-    </head>
+   <head>
+      <meta charset="utf-8">
+      <title>Cytometry Web App</title>
+   </head>
+   <script language="JavaScript">
+	function wrongFile() {
+	    alert("Wrong file name or format! \nFile should be in FCS format. \nName can't contain '[', ']', '/'.")
+	}
 
-<script language="JavaScript">
-function checkRefresh()
-{
-
-} 
-
-function wrongFile()
-{
-	alert("Wrong file name or format! \nFile should be in FCS format. \nName can't contain '[', ']', '/'.")
-}
-
-function tooBig()
-{
-	alert("File is too big.\nMax size of file is 10 megabytes.")
-}
-</script>
-<body onLoad="JavaScript:checkRefresh();">
-<form name="refreshForm">
-<input type="hidden" name="visited" value="" />
-{% if wrong_file %}
-	<script>
-	wrongFile()
-	</script>
-{% endif %}
-{% if too_big %}
-	<script>
-	tooBig()
-	</script>
-{% endif %}
-</form>
-	<p><b>0. Upload the fcs file</b></p>
-	<form name='upload_btn' id='upload_form' action="{% url 'cytometry:upload_file' %}" method="post" enctype="multipart/form-data">
-	{% csrf_token %}
-		<p>{{ form.non_field_errors }}</p>
-		<p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
-		<p>Do not worry if the uploaded file changes its name.</p>
-		<p>
-		{{ form.docfile.errors }}
-		{{ form.docfile }}
-		</p>
-		<p><input type="submit" class="btn" value="Upload" name="upload_btn"></p>
-	</form>
-<nobr/>
-</body>
+	function tooBig() {
+	    alert("File is too big.\nMax size of file is 10 megabytes.")
+	}
+   </script>
+   <body>
+      {% if wrong_file %}
+      <script>
+         wrongFile()
+      </script>
+      {% endif %}
+      {% if too_big %}
+      <script>
+         tooBig()
+      </script>
+      {% endif %}
+      <p><b>0. Upload the fcs file</b></p>
+      <form name='upload_btn' id='upload_form' action="{% url 'cytometry:upload_file' %}" method="post" enctype="multipart/form-data">
+         {% csrf_token %}
+         <p>{{ form.non_field_errors }}</p>
+         <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+         <p>Do not worry if the uploaded file changes its name.</p>
+         <p>
+            {{ form.docfile.errors }}
+            {{ form.docfile }}
+         </p>
+         <p><input type="submit" class="btn" value="Upload" name="upload_btn"></p>
+      </form>
+      <nobr/>
+   </body>
 </html>
+
+

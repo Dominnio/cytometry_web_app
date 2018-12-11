@@ -1,16 +1,15 @@
 <style>
-.progress {
-  width: 100%;
-  background-color: #ddd;
-}
-
-.bar {
-  width: 1%;
-  height: 30px;
-  background-color: #4CAF50;
-  text-align:right;
-}
- </style>
+   .progress {
+   width: 100%;
+   background-color: #ddd;
+   }
+   .bar {
+   width: 1%;
+   height: 30px;
+   background-color: #4CAF50;
+   text-align:right;
+   }
+</style>
 <pre>
 <h2 style="margin-top: 0, margin-bottom: 0">Welcome to the cytometric data grouping tool.</h2>
 How to use 
@@ -28,115 +27,97 @@ How to use
 <pre lang="html4strict">
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Cytometry Web App</title>
-    </head>
-<script language="JavaScript">
-function checkRefresh()
-{
-	if( document.refreshForm.visited.value == "" )
-	{
-		// This is a fresh page load
+   <head>
+      <meta charset="utf-8">
+      <title>Cytometry Web App</title>
+   </head>
+   <script language="JavaScript">
+	function checkRefresh() {
+	    if (document.refreshForm.visited.value == "") {
 		document.refreshForm.visited.value = "1";
-		// You may want to add code here special for
-		// fresh page loads
-	}
-	else
-	{
-		// This is a page refresh
+	    } else {
 		alert("Refreshing the page you are analyze the same data again.")
-		// Insert code here representing what to do on
-		// a refresh
+	    }
 	}
-} 
 
+	function post(path, data) {
+	    var xhr = new XMLHttpRequest();
+	    xhr.open("POST", path, true);
+	    xhr.setRequestHeader('Content-Type', 'application/json');
+	    xhr.send(JSON.stringify(data));
+	}
+   </script>
+   <body onLoad="JavaScript:checkRefresh();">
+      <form name="refreshForm">
+         <input type="hidden" name="visited" value="" />
+      </form>
+      <b>Uploded file: </b> <br>
+      <ul>
+         <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
+      </ul>
+      <p>
+         Your Task is <span id="user-count"></span>!
+      </p>
+      <form action = "{% url 'cytometry:upload_file' %}" method="post">
+         {% csrf_token %}
+         <input type='hidden' id="task_id" name="task_id" value="{{ task_id }}"></li>
+         <input type='hidden' id=f_name name="f_name" value="{{ name }}"></li>
+         <input type="submit" id="cancelBtn" name="cancel" value="Cancel task" />
+      </form>
+      <div class="status"></div>
+      {% if task_id %}
+      <div class="progress">
+         <div class="bar"></div>
+      </div>
+      {% endif %}
+      </div>
+      <form action = "{% url 'cytometry:result' %}" method="post">
+         <input type='hidden' name="option[]" value="{{ name }}"></li>
+         {% csrf_token %}
+         <input id="returnBtn" type="submit" value="Show result" style="visibility:hidden; margin-top:10px;">
+      </form>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+      <script type="text/javascript">
+	var poll_xhr;
+	var willstop = 0;
+	(function() {
+	    var poll = function() {
+		console.log(task_id);
+		poll_xhr = $.ajax({
+		    url: 'process_state',
+		    type: 'GET',
+		    success: function(result) {
+		        if (result.process_percent == null || result.process_percent == undefined) {
+		            willstop = 1;
+		            document.getElementById("user-count").textContent = "DONE";
+		            jQuery('.bar').css({
+		                'width': 100 + '%'
+		            });
+		            jQuery('.bar').html(100 + '%');
+		            document.getElementById('returnBtn').style.visibility = 'visible';
+		            document.getElementById('cancelBtn').remove();
 
-function post(path, data) {
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", path, true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	xhr.send(JSON.stringify(data));
-}
+		        } else {
+		            jQuery('.bar').css({
+		                'width': result.process_percent + '%'
+		            });
+		            jQuery('.bar').html(result.process_percent + '%');
+		            document.getElementById("user-count").textContent = "PROCRESSING";
+		        };
+		    }
+		});
+	    };
 
-</script>
-<body onLoad="JavaScript:checkRefresh();">
-<form name="refreshForm">
-<input type="hidden" name="visited" value="" />
-</form>
-
-	<b>Uploded file: </b> <br>
-	<ul>
-	<a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
-	</ul>
-
-<p>
-  Your Task is <span id="user-count"></span>!
-</p>
-<form action = "{% url 'cytometry:upload_file' %}" method="post">
-	{% csrf_token %}
-	<input type='hidden' id="task_id" name="task_id" value="{{ task_id }}"></li>
-	<input type='hidden' id=f_name name="f_name" value="{{ name }}"></li>
-	<input type="submit" id="cancelBtn" name="cancel" value="Cancel task" />
-</form>
-<div class="status"></div>
-   {% if task_id %}
-   <div class="progress">
-    <div class="bar"></div>
-   </div>
-   {% endif %}
-</div>
-<form action = "{% url 'cytometry:result' %}" method="post">
-	<input type='hidden' name="option[]" value="{{ name }}"></li>
-	{% csrf_token %}
-	<input id="returnBtn" type="submit" value="Show result" style="visibility:hidden; margin-top:10px;">
-</form>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-<script type="text/javascript">
-   var poll_xhr;
-   var willstop = 0;
-  (function(){
-    var poll = function(){
-      var json_dump = '{{ data }}';
-      var task_id = '{{ task_id }}';
-      var name = '{{ name }}';
-
-      console.log(task_id);
-      poll_xhr = $.ajax({
-        url:'process_state',
-        type: 'POST',
-        data: {
-            name: name,
-            task_id: task_id,
-            csrfmiddlewaretoken: '{{ csrf_token }}',
-        },
-        success: function(result) {
-                    if (result.process_percent == null || result.process_percent == undefined) {
-                        willstop = 1;
-                        document.getElementById("user-count").textContent="DONE";
-                        jQuery('.bar').css({'width': 100 + '%'});
-                        jQuery('.bar').html(100 + '%');
-                        document.getElementById('returnBtn').style.visibility = 'visible';
-			document.getElementById('cancelBtn').remove();
-
-                       } else {
-                         jQuery('.bar').css({'width': result.process_percent + '%'});
-                         jQuery('.bar').html(result.process_percent + '%');
-                         document.getElementById("user-count").textContent="PROCRESSING";
-                       };
-                    }
-      });
-    };
-
-    var refreshIntervalId = setInterval(function() {
-      poll();
-      if(willstop == 1){
-        clearInterval(refreshIntervalId);
-      }
-    },500);
-  })();
-</script>
-
-<nobr/>
-</body>
+	    var refreshIntervalId = setInterval(function() {
+		poll();
+		if (willstop == 1) {
+		    clearInterval(refreshIntervalId);
+		}
+	    }, 500);
+	})();
+      </script>
+      <nobr/>
+   </body>
 </html>
+
+
