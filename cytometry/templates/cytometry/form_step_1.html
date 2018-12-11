@@ -1,16 +1,15 @@
 <style>
-.progress {
-  width: 100%;
-  background-color: #ddd;
-}
-
-.bar {
-  width: 1%;
-  height: 30px;
-  background-color: #4CAF50;
-  text-align:right;
-}
- </style>
+   .progress {
+   width: 100%;
+   background-color: #ddd;
+   }
+   .bar {
+   width: 1%;
+   height: 30px;
+   background-color: #4CAF50;
+   text-align:right;
+   }
+</style>
 <pre>
 <h2 style="margin-top: 0, margin-bottom: 0">Welcome to the cytometric data grouping tool.</h2>
 How to use 
@@ -27,123 +26,100 @@ How to use
 <pre lang="html4strict">
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Cytometry Web App</title>
-    </head>
-	<script>
-	function determinate_number_of_cluster(){
-		var unknown = document.getElementById("noc");
-		var from = document.getElementById("from");
-		var to = document.getElementById("to");
-		if(unknown.checked == true){
-			document.getElementById("n_clusters").disabled = true;
-			from.disabled = false
-			to.disabled = false
-			document.getElementById("uk").style.visibility = "visible";
-			
-		}else{
-			document.getElementById("n_clusters").disabled = false;
-			from.disabled = true
-			to.disabled = true
-			document.getElementById("uk").style.visibility = "hidden";
-		}
+   <head>
+      <meta charset="utf-8">
+      <title>Cytometry Web App</title>
+   </head>
+   <script>
+	function determinate_number_of_cluster() {
+	    var unknown = document.getElementById("noc");
+	    var from = document.getElementById("from");
+	    var to = document.getElementById("to");
+	    if (unknown.checked == true) {
+		document.getElementById("n_clusters").disabled = true;
+		from.disabled = false
+		to.disabled = false
+		document.getElementById("uk").style.visibility = "visible";
+	    } else {
+		document.getElementById("n_clusters").disabled = false;
+		from.disabled = true
+		to.disabled = true
+		document.getElementById("uk").style.visibility = "hidden";
+	    }
 	}
-	function check_if_valid()
-	{
-		mininum = parseInt(document.getElementById("from").value)
-		maximum = parseInt(document.getElementById("to").value)
-		if(mininum >= maximum)
-		{
-			alert("'From' value cannot be smaller than 'to' value!")
-			document.getElementById("to").value = 7	
-			document.getElementById("from").value = 2		
-		}
-	}
-	</script>
 
-<script language="JavaScript">
-function checkRefresh()
-{
-	if( document.refreshForm.visited.value == "" )
-	{
-		// This is a fresh page load
+	function check_if_valid() {
+	    mininum = parseInt(document.getElementById("from").value)
+	    maximum = parseInt(document.getElementById("to").value)
+	    if (mininum >= maximum) {
+		alert("'From' value cannot be smaller than 'to' value!")
+		document.getElementById("to").value = 7
+		document.getElementById("from").value = 2
+	    }
+	}
+
+	function checkRefresh() {
+	    if (document.refreshForm.visited.value == "") {
 		document.refreshForm.visited.value = "1";
-		// You may want to add code here special for
-		// fresh page loads
-	}
-	else
-	{
-		// This is a page refresh
+	    } else {
 		alert("Refreshing the page you upload the same file again.")
-		// Insert code here representing what to do on
-		// a refresh
+	    }
 	}
-} 
-</script>
-<body onLoad="JavaScript:checkRefresh();">
-<form name="refreshForm">
-<input type="hidden" name="visited" value="" />
-</form>
-	<form action = "{% url 'cytometry:run' %}" method="post">
-	{% csrf_token %}
-		<b>Uploded file: </b> <br>
-		<ul>
-		<a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
-		</ul>
-		<!--
-		{% if messages %}
-		    {% for message in messages %}
-		    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-		    {% endfor %}
-		{% endif %}
-		-->
-
-		<p><b>1. Select the grouping algorithm</b></p>
-			  <select>
-			    <option value="Kmeans">Kmeans</option>
-			  </select> 
-		
-		<p><b>2. Set the parameters of algorithm</b></p>
-			The number of clusters
-			  <input type="checkbox" id="noc" name="n_clusters_unknown" onclick="determinate_number_of_cluster()">Unknown
-			  <script>
-				document.getElementById("noc").checked = false; 
-			  </script>
-			  <a id="uk">
-			  # check from: <input type="number" id="from" name="from" min="2" max="19" disabled="disabled" value=2 onchange='check_if_valid()'>
-			  to: <input type="number" id="to" name="to" min="3" max="20" disabled="disabled" value=7 onchange='check_if_valid()'>
-			  </a>
-			  <script>
-				document.getElementById("uk").style.visibility = "hidden";
-				document.getElementById("from").disabled = true;
-				document.getElementById("to").disabled = true;
-			  </script>
-			  <br>
-			  Quantity (between 2 and 20):
-			  <input type="number" id="n_clusters" name="n_clusters" min="2" max="100" value=5>
-		
-			<br><br>The number of initializations<br>
-			  Quantity (between 1 and 100): 
-			  <input type="number" name="n_init" min="1" max="100" value="10">
-		
-			<br><br>The maximum number of iterations<br>
-			  Quantity (between 1 and 300):            
-			  <input type="number" name="max_iter" min="1" max="1000"  value="300">
-
-			<br><br>Tolerance<br>
-			  Quantity (between 0.0001 and 0.1):
-			  <input type="number" name="tol" min="0.00001" max="0.1" step="0.00001" value="0.0001">
-				<p><b>3. Select methods for evaluating the solution</b></p>
-				<input type="checkbox" id="WCSS" name="checks[]" value="1">WCSS<br>
-				<input type="checkbox" id="BCSS" name="checks[]" value="2">BCSS<br>
-				<input type="checkbox" id="Calinski-Harabasz" name="checks[]" value="3">Calinski-Harabasz<br>
-				<input type="checkbox" id="Davies-Bouldin" name="checks[]" value="4">Davies-Bouldin<br>
-				<input type="checkbox" id="Silhouette" name="checks[]" value="5">Silhouette<br>
-
-		<p><b>4. Click run</b></p>
-		<input id="progress-bar-trigger" type="submit" class="btn" value="Run" name="run_btn" onclick="check()">
-	</form>
-<nobr/>
-</body>
+   </script>
+   <body onLoad="JavaScript:checkRefresh();">
+      <form name="refreshForm">
+         <input type="hidden" name="visited" value="" />
+      </form>
+      <form action = "{% url 'cytometry:run' %}" method="post">
+         {% csrf_token %}
+         <b>Uploded file: </b> <br>
+         <ul>
+            <a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
+         </ul>
+         <p><b>1. Select the grouping algorithm</b></p>
+         <select>
+            <option value="Kmeans">Kmeans</option>
+         </select>
+         <p><b>2. Set the parameters of algorithm</b></p>
+         The number of clusters
+         <input type="checkbox" id="noc" name="n_clusters_unknown" onclick="determinate_number_of_cluster()">Unknown
+         <script>
+            document.getElementById("noc").checked = false; 
+             
+         </script>
+         <a id="uk">
+         # check from: <input type="number" id="from" name="from" min="2" max="19" disabled="disabled" value=2 onchange='check_if_valid()'>
+         to: <input type="number" id="to" name="to" min="3" max="20" disabled="disabled" value=7 onchange='check_if_valid()'>
+         </a>
+         <script>
+            document.getElementById("uk").style.visibility = "hidden";
+            document.getElementById("from").disabled = true;
+            document.getElementById("to").disabled = true;
+             
+         </script>
+         <br>
+         Quantity (between 2 and 20):
+         <input type="number" id="n_clusters" name="n_clusters" min="2" max="100" value=5>
+         <br><br>The number of initializations<br>
+         Quantity (between 1 and 100): 
+         <input type="number" name="n_init" min="1" max="100" value="10">
+         <br><br>The maximum number of iterations<br>
+         Quantity (between 1 and 300):            
+         <input type="number" name="max_iter" min="1" max="1000"  value="300">
+         <br><br>Tolerance<br>
+         Quantity (between 0.0001 and 0.1):
+         <input type="number" name="tol" min="0.00001" max="0.1" step="0.00001" value="0.0001">
+         <p><b>3. Select methods for evaluating the solution</b></p>
+         <input type="checkbox" id="WCSS" name="checks[]" value="1">WCSS<br>
+         <input type="checkbox" id="BCSS" name="checks[]" value="2">BCSS<br>
+         <input type="checkbox" id="Calinski-Harabasz" name="checks[]" value="3">Calinski-Harabasz<br>
+         <input type="checkbox" id="Davies-Bouldin" name="checks[]" value="4">Davies-Bouldin<br>
+         <input type="checkbox" id="Silhouette" name="checks[]" value="5">Silhouette<br>
+         <p><b>4. Click run</b></p>
+         <input id="progress-bar-trigger" type="submit" class="btn" value="Run" name="run_btn" onclick="check()">
+      </form>
+      <nobr/>
+   </body>
 </html>
+
+

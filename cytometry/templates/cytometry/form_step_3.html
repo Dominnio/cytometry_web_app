@@ -1,16 +1,3 @@
-<style>
-.progress {
-  width: 100%;
-  background-color: #ddd;
-}
-
-.bar {
-  width: 1%;
-  height: 30px;
-  background-color: #4CAF50;
-  text-align:right;
-}
- </style>
 <pre>
 <h2 style="margin-top: 0, margin-bottom: 0">Welcome to the cytometric data grouping tool.</h2>
 How to use 
@@ -25,214 +12,175 @@ How to use
 7. Select the charts you want to see</b>
 ===================================================
 <nobr>
-<form action = "{% url 'cytometry:start' %}" method="post">
-{% csrf_token %}
-<input type="hidden" name="name" value="{{ name }}">
-<input id="back_btn" type="submit" value="Back to begin" name="back_btn" onclick="back()">
-</form>
+   <form action = "{% url 'cytometry:start' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="name" value="{{ name }}">
+      <input id="back_btn" type="submit" value="Back to begin" name="back_btn" onclick="back()">
+   </form>
 </nobr>
 <nobr>
 <pre lang="html4strict">
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Cytometry Web App</title>
-
-	<script>
-
-	window.onbeforeunload = function () {
+   <head>
+      <meta charset="utf-8">
+      <title>Cytometry Web App</title>
+      <script>
+	window.onbeforeunload = function() {
 	    return "Do you really want to close?";
 	};
 	var _wasPageCleanedUp = false;
-	function pageCleanup()
-	{
-	    if (!_wasPageCleanedUp)
-	    {
+
+	function pageCleanup() {
+	    if (!_wasPageCleanedUp) {
 		$.ajax({
 		    type: 'GET',
-		    name:
-		    async: false,
+		    name: async: false,
 		    url: 'close',
-		    success: function ()
-		    {
-			alert("good bye");
+		    success: function() {
 		        _wasPageCleanedUp = true;
 		    }
 		});
 	    }
 	}
 
-
-	$(window).on('beforeunload', function ()
-	{
-	    //this will work only for Chrome
+	$(window).on('beforeunload', function() {
 	    pageCleanup();
 	});
 
-	$(window).on("unload", function ()
-	{
-	    //this will work for other browsers
+	$(window).on("unload", function() {
 	    pageCleanup();
 	});
-	</script>
-
-    </head>
-	<script>
-	function dim_changed(){
-		var selector = document.getElementById("dim");
-		var value = selector[selector.selectedIndex].value;
-		var pca = document.getElementById("pca");
-		if(value == "1" && pca.checked == false){
-			document.getElementById("first_dim").disabled = false;
-			document.getElementById("second_dim").disabled = true;
-			document.getElementById("third_dim").disabled = true;
-		}
-		if(value == "2"  && pca.checked == false){
-			document.getElementById("second_dim").disabled = false;
-			document.getElementById("third_dim").disabled = true;
-		}
-		if(value == "3"  && pca.checked == false){
-			document.getElementById("second_dim").disabled = false;
-			document.getElementById("third_dim").disabled = false;
-		}
+      </script>
+   </head>
+   <script>
+	function dim_changed() {
+	    var selector = document.getElementById("dim");
+	    var value = selector[selector.selectedIndex].value;
+	    var pca = document.getElementById("pca");
+	    if (value == "1" && pca.checked == false) {
+		document.getElementById("first_dim").disabled = false;
+		document.getElementById("second_dim").disabled = true;
+		document.getElementById("third_dim").disabled = true;
+	    }
+	    if (value == "2" && pca.checked == false) {
+		document.getElementById("second_dim").disabled = false;
+		document.getElementById("third_dim").disabled = true;
+	    }
+	    if (value == "3" && pca.checked == false) {
+		document.getElementById("second_dim").disabled = false;
+		document.getElementById("third_dim").disabled = false;
+	    }
 	}
-	function use_pca(){
-		var selector = document.getElementById("dim");
-		var value = selector[selector.selectedIndex].value;
-		var pca = document.getElementById("pca");
-		if(pca.checked == true){
-			document.getElementById("first_dim").disabled = true;
-			document.getElementById("second_dim").disabled = true;
-			document.getElementById("third_dim").disabled = true;
-		}else{
-			if(value == "1"){
-				document.getElementById("first_dim").disabled = false;
-				document.getElementById("second_dim").disabled = true;
-				document.getElementById("third_dim").disabled = true;
-			}
-			if(value == "2"){
-				document.getElementById("first_dim").disabled = false;
-				document.getElementById("second_dim").disabled = false;
-				document.getElementById("third_dim").disabled = true;
-			}
-			if(value == "3"){
-				document.getElementById("first_dim").disabled = false;
-				document.getElementById("second_dim").disabled = false;
-				document.getElementById("third_dim").disabled = false;
-			}	
-		}
-	}
-	</script>
 
-<script language="JavaScript">
-function checkRefresh()
-{
-	if( document.refreshForm.visited.value == "" )
-	{
-		// This is a fresh page load
+	function use_pca() {
+	    var selector = document.getElementById("dim");
+	    var value = selector[selector.selectedIndex].value;
+	    var pca = document.getElementById("pca");
+	    if (pca.checked == true) {
+		document.getElementById("first_dim").disabled = true;
+		document.getElementById("second_dim").disabled = true;
+		document.getElementById("third_dim").disabled = true;
+	    } else {
+		if (value == "1") {
+		    document.getElementById("first_dim").disabled = false;
+		    document.getElementById("second_dim").disabled = true;
+		    document.getElementById("third_dim").disabled = true;
+		}
+		if (value == "2") {
+		    document.getElementById("first_dim").disabled = false;
+		    document.getElementById("second_dim").disabled = false;
+		    document.getElementById("third_dim").disabled = true;
+		}
+		if (value == "3") {
+		    document.getElementById("first_dim").disabled = false;
+		    document.getElementById("second_dim").disabled = false;
+		    document.getElementById("third_dim").disabled = false;
+		}
+	    }
+	}
+
+	function checkRefresh() {
+	    if (document.refreshForm.visited.value == "") {
 		document.refreshForm.visited.value = "1";
-		// You may want to add code here special for
-		// fresh page loads
-	}
-	else
-	{
-		// This is a page refresh
+	    } else {
 		alert("Refreshing the page you are doing the same action!")
-		// Insert code here representing what to do on
-		// a refresh
+	    }
 	}
-} 
-</script>
-<body onLoad="JavaScript:checkRefresh();">
-<form name="refreshForm">
-<input type="hidden" name="visited" value="" />
-</form>
-	<form action = "{% url 'cytometry:show' %}" method="post">
-	<b>Uploded file: </b> <br>
-	<ul>
-	<li>{{ name }} <input type='hidden' id="name" name="option[]" value="{{ name }}"></li>
-	</ul>
-
-	<p><b>6. Result</b></p>
-	Cluster number: {{ result.n_clusters }}<br><br>
-	{% for check in result.checks %}
-	  <li> {{ check }}<br>
-	</li><br>		
-	{% endfor %}
-	Clusters parameters:
-	<ol>	
-		{% for cluster in result.clusters %}
-		 <li> Cluster 
-		<br> Number of cells: {{ cluster.number_of_cells }}<br>
-		Center: {{ cluster.center }}	
-		</li><br>		
-		{% endfor %}
-	</ol>
-	Silhouette score: <br>
-	{% csrf_token %}
-		<p><b>7. Select the grahps you want to create</b></p>
-		<select onchange="dim_changed()" name = "dim" id = "dim">
-		    <option value="1">histogram</option>
-		    <option value="2" selected='selected'>2D graph</option>
-		    <option value="3">3D image</option>
-		</select>
-		<input type="checkbox" id="pca" name="pca" checked='true' value="pca" onclick="use_pca()">use PCA
-		<select name = "first_dim" id="first_dim" disabled="disabled">
-		{% for choice in form.my_choice_field.field.choices %}
-		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
-		{% endfor %}
-		</select>
-		<select name = "second_dim" id="second_dim" disabled="disabled">
-		{% for choice in form.my_choice_field.field.choices %}
-		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
-		{% endfor %}
-		</select>
-		<select name = "third_dim" id="third_dim" disabled="disabled">
-		{% for choice in form.my_choice_field.field.choices %}
-		  <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
-		{% endfor %}
-		</select><br>
-	<input type="submit" class="btn" value="Show" name="show_btn">
-	</form>
-<nobr/>
-{% if img %}
-
-	<!--	
-	<script>
-	var myWindow;
-
-	function openWin() {
-	    myWindow = window.open("", "myWindow", "width=200,height=100");
-            myWindow.document.write("<img id=myImg src='' alt='My image'>");
-	    var img = myWindow.document.getElementById("myImg");
-	    img.src = "/static/" + name;
-	}
-
-	openWin()
-	</script>
-	-->
-	
-	{% if fig %}
-
-	{% for elem in fig %}
-	   {{elem|safe}}
-	{% endfor %}
-		
-	{% else %}
-
-	{% load static %}
-		<img id=myImg src="" alt="My image">
-	<script>
-	function myFunction() {
-	    name = document.getElementById("name").value
-	    name = "real_data_result_" + name + ".png"
-	    document.getElementById("myImg").src = "/static/" + name;
-	}
-	myFunction();
-	</script>
-	{% endif %}
-{% endif %}
-
-</body>
+   </script>
+   <body onLoad="JavaScript:checkRefresh();">
+      <form name="refreshForm">
+         <input type="hidden" name="visited" value="" />
+      </form>
+      <form action = "{% url 'cytometry:show' %}" method="post">
+         <b>Uploded file: </b> <br>
+         <ul>
+            <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
+         </ul>
+         <p><b>6. Result</b></p>
+         Cluster number: {{ result.n_clusters }}<br><br>
+         {% for check in result.checks %}
+         <li> {{ check }}<br>
+         </li>
+         <br>		
+         {% endfor %}
+         Clusters parameters:
+         <ol>
+            {% for cluster in result.clusters %}
+            <li> Cluster 
+               <br> Number of cells: {{ cluster.number_of_cells }}<br>
+               Center: {{ cluster.center }}	
+            </li>
+            <br>		
+            {% endfor %}
+         </ol>
+         Silhouette score: <br>
+         {% csrf_token %}
+         <p><b>7. Select the grahps you want to create</b></p>
+         <select onchange="dim_changed()" name = "dim" id = "dim">
+            <option value="1">histogram</option>
+            <option value="2" selected='selected'>2D graph</option>
+            <option value="3">3D image</option>
+         </select>
+         <input type="checkbox" id="pca" name="pca" checked='true' value="pca" onclick="use_pca()">use PCA
+         <select name = "first_dim" id="first_dim" disabled="disabled">
+            {% for choice in form.my_choice_field.field.choices %}
+            <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+            {% endfor %}
+         </select>
+         <select name = "second_dim" id="second_dim" disabled="disabled">
+            {% for choice in form.my_choice_field.field.choices %}
+            <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+            {% endfor %}
+         </select>
+         <select name = "third_dim" id="third_dim" disabled="disabled">
+            {% for choice in form.my_choice_field.field.choices %}
+            <option name="my_choice_field" value="{{choice.0}}" >{{choice.1}}</option>
+            {% endfor %}
+         </select>
+         <br>
+         <input type="submit" class="btn" value="Show" name="show_btn">
+      </form>
+      <nobr/>
+      {% if img %}
+      {% if fig %}
+      {% for elem in fig %}
+      {{elem|safe}}
+      {% endfor %}
+      {% else %}
+      {% load static %}
+      <img id=myImg src="" alt="My image">
+      <script>
+         function myFunction() {
+             name = document.getElementById("name").value
+             name = "real_data_result_" + name + ".png"
+             document.getElementById("myImg").src = "/static/" + name;
+         }
+         myFunction();
+      </script>
+      {% endif %}
+      {% endif %}
+   </body>
 </html>
+
+
