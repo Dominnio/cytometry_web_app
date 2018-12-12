@@ -42,14 +42,13 @@ def show(request):
             dim_2 = request.POST['second_dim']
             dim_3 = request.POST['third_dim']
     name = request.POST['file_name']
-    print(">>>>>>>>>>>>>>>" + name)
     path_file = settings.MEDIA_ROOT +  '/' +  name
     form = forms.MyForm(path_file)
     result = forms.ResultForm(name)
     fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name)
     if(int(dim) == 3):
-        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result})
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result })#, 'fig': [fig]})
+        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result })#, 'fig': [fig]})
 
 '''
 result() shows cluster parameter
@@ -59,7 +58,7 @@ def result(request):
     path_file = settings.MEDIA_ROOT + '/' +  name
     result = forms.ResultForm(name)
     form = forms.MyForm(path_file)
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'unknown_k': 1})
 
 '''
 process_state() shows current task progress bar (update it)
