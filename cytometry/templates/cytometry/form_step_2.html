@@ -53,7 +53,7 @@ How to use
       </form>
       <b>Uploded file: </b> <br>
       <ul>
-         <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
+         <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="file_name" value="{{ name }}"></a>
       </ul>
       <p>
          Your Task is <span id="user-count"></span>!
@@ -72,7 +72,7 @@ How to use
       {% endif %}
       </div>
       <form action = "{% url 'cytometry:result' %}" method="post">
-         <input type='hidden' name="option[]" value="{{ name }}"></li>
+         <input type='hidden' name="file_name" value="{{ name }}"></li>
          {% csrf_token %}
          <input id="returnBtn" type="submit" value="Show result" style="visibility:hidden; margin-top:10px;">
       </form>

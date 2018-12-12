@@ -41,30 +41,24 @@ def show(request):
         if(int(dim) == 3):
             dim_2 = request.POST['second_dim']
             dim_3 = request.POST['third_dim']
-    name = request.POST.getlist('option[]')
-    path_file = settings.MEDIA_ROOT +  '/' +  name[0]
-    name = request.POST.getlist('option[]')
-    split = name[0].split(']')
-    name = split[0]
-    path_file = settings.MEDIA_ROOT + '/' +  name
+    name = request.POST['file_name']
+    path_file = settings.MEDIA_ROOT +  '/' +  name
     form = forms.MyForm(path_file)
     result = forms.ResultForm(name)
     fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name)
     if(int(dim) == 3):
-        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result})
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'img' : 1, 'result': result, 'fig': [fig]})
+        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result })#, 'fig': [fig]})
 
 '''
 result() shows cluster parameter
 '''
 def result(request):
-    name = request.POST.getlist('option[]')
-    split = name[0].split(']')
-    name = split[0]
+    name = request.POST['file_name']
     path_file = settings.MEDIA_ROOT + '/' +  name
     result = forms.ResultForm(name)
     form = forms.MyForm(path_file)
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'unknown_k': 1})
 
 '''
 process_state() shows current task progress bar (update it)
@@ -106,9 +100,7 @@ next render site with form (because we must know dimension names)
 TODO : shoud get type of algorithm, and do diffrent things depend on it
 '''
 def run(request):
-    name = request.POST.getlist('option[]')
-    split = name[0].split(']')
-    name = split[0]
+    name = request.POST['file_name']
     path_file = settings.MEDIA_ROOT + '/' +  name
 
     checks = request.POST.getlist('checks[]')
@@ -123,8 +115,12 @@ def run(request):
     n_init = int(request.POST['n_init'])
     max_iter = int(request.POST['max_iter'])
     tol = float(request.POST['tol'])
+    if('preprocessing' in request.POST):
+        preprocessing = True
+    else:
+        preprocessing = False
     form = forms.MyForm(path_file)
-    job = kmeans.delay(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name)
+    job = kmeans.delay(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing)
     return HttpResponseRedirect('/job/' + job.id + '/' + name)
 
 '''
