@@ -115,7 +115,7 @@ How to use
       <form action = "{% url 'cytometry:show' %}" method="post">
          <b>Uploded file: </b> <br>
          <ul>
-            <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
+            <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' id="name" name="file_name" value="{{ name }}"></a>
          </ul>
          <p><b>6. Result</b></p>
          Cluster number: {{ result.n_clusters }}<br><br>

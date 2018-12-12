@@ -140,8 +140,6 @@ def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name):
 	plt.title('KMeans')
 	plt.grid(True)
 	plt.savefig(settings.STATIC_ROOT + '/cytometry/static/real_data_result_' + name + '.png')
-
-	print("step 1")
-	html_fig  = mpld3.fig_to_html(fig)
-	return html_fig
+	#html_fig  = mpld3.fig_to_html(fig)
+	return 1 #html_fig
 

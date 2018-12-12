@@ -25,28 +25,27 @@ def determine_number_of_clusters(samples, min_clusters, max_clusters, n_init, ma
     k = 0
     calinski_best = 0
     for i in range(min_clusters, max_clusters):
-        progress = 90 * float(i - max_clusters) / float(max_clusters - min_clusters)
-        samples = preprocessing.scale(samples, axis=0)
+        progress = 90 * float(i - min_clusters) / float(max_clusters - min_clusters)
         kmenas = KMeans(i,n_init=n_init,max_iter=max_iter,tol=tol).fit(samples)
         calinski = calinski_harabaz_score(samples,kmenas.labels_)
+        print(calinski)
         current_task.update_state(state='PROGRESS', meta={'process_percent': progress})
         if(calinski > calinski_best):
             k = i
             calinski_best = calinski
 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 99})
-    return calinski_choose
+    return k
 
 @shared_task
-def kmeans(file_path, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name): 
+def kmeans(file_path, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing): 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 0})
     fcs_data = FlowCal.io.FCSData(file_path)
     samples = np.array(fcs_data, float)
     if(n_clusters == 0):
         n_clusters = determine_number_of_clusters(samples, from_val, to_val, n_init, max_iter, tol, file_path)
-    samples = preprocessing.scale(samples, axis=0)
+    #samples = preprocessing.scale(samples, axis=0)
     kmeans = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, tol=tol).fit(samples)
-
     i = 0
     text = ""
     for check in checks:

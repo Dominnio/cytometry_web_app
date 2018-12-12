@@ -74,18 +74,18 @@ How to use
          {% csrf_token %}
          <b>Uploded file: </b> <br>
          <ul>
-            <a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="option[]" value="{{ name }}"></a>
+            <a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="file_name" value="{{ name }}"></a>
          </ul>
          <p><b>1. Select the grouping algorithm</b></p>
          <select>
             <option value="Kmeans">Kmeans</option>
          </select>
          <p><b>2. Set the parameters of algorithm</b></p>
+         Apply preprocessing <input type="checkbox" id="preprocessing" name="preprocessing"><br><br>
          The number of clusters
          <input type="checkbox" id="noc" name="n_clusters_unknown" onclick="determinate_number_of_cluster()">Unknown
          <script>
             document.getElementById("noc").checked = false; 
-             
          </script>
          <a id="uk">
          # check from: <input type="number" id="from" name="from" min="2" max="19" disabled="disabled" value=2 onchange='check_if_valid()'>
