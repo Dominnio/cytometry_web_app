@@ -29,21 +29,16 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script>
-      window.addEventListener('beforeunload', function(event) {
-        $.ajax({
+        setInterval(function() {
+	 $.ajax({
 	    type: 'POST',
 	    async: false,
-	    url: 'close',
-	});
-      });
-      window.addEventListener('unload', function(event) {
-        $.ajax({
-	    type: 'POST',
-	    async: false,
-	    url: 'close',
-	});
-      });
+	    url: "{% url 'cytometry:iamhere' %}",
+            data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
+	  });
+	}, 10000); 
     </script>
    </head>
    <script>

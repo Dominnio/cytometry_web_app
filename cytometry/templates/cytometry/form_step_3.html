@@ -25,6 +25,17 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script>
+        setInterval(function() {
+	 $.ajax({
+	    type: 'POST',
+	    async: false,
+	    url: "{% url 'cytometry:iamhere' %}",
+            data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
+	  });
+	}, 10000); 
+    </script>
       <script>
 	window.onbeforeunload = function() {
 	    return "Do you really want to close?";

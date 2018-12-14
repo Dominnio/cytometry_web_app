@@ -22,6 +22,7 @@ from .tasks import kmeans
 from . import forms
 from . import tasks
 import matplotlib.pyplot as plt, mpld3
+import datetime
 
 '''
 show() gets chart parameter, create chart, optionally save it to file (if it's 3 dimensonal graf), and render 
@@ -52,8 +53,9 @@ def show(request):
     result = forms.ResultForm(name)
     fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name, preprocessing)
     if(int(dim) == 3):
-        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result})
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result })#, 'fig': [fig]})
+        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result, 'preprocessing': preprocessing})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result, 'preprocessing': preprocessing
+})#, 'fig': [fig]})
 
 '''
 result() shows cluster parameter
@@ -167,25 +169,47 @@ def upload_file(request):
         newdoc.save()
         document = newdoc
         name = newdoc.__unicode__()
+        names[name] = datetime.datetime.now()
         messages.info(request, 'File uploaded successfully!')
         return render(request, 'cytometry/form_step_1.html', {'name': name})
 
 '''
 not used yet at all
 '''
-def close(request):
-    print(">>>>>>>>>>>>>>>>>>>>>>")
-    name = request.GET['name']
-    if os.path.isfile(settings.MEDIA_ROOT + '/' + name):
-        os.remove(settings.MEDIA_ROOT + '/' + name)
-        os.remove(settings.MEDIA_ROOT + '/result_centers_' + name + '.txt')
-        os.remove(settings.MEDIA_ROOT + '/result_labels_' + name + '.txt')
-    if os.path.isfile(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png'):
-        os.remove(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png')
+def iamhere(request): 
+    name = request.POST['name']
+    names[name] = datetime.datetime.now()
+    data = "ok"
+    json_data = json.dumps(data)
+    return HttpResponse(json_data, content_type='application/json')
+
+def check():
+    print(names)
+    for name in list(names.keys()):
+        if names[name] < datetime.datetime.now() - datetime.timedelta(seconds=60):
+            del names[name]
+            if os.path.isfile(settings.MEDIA_ROOT + '/' + name):
+                os.remove(settings.MEDIA_ROOT + '/' + name)
+                os.remove(settings.MEDIA_ROOT + '/result_centers_' + name + '.txt')
+                os.remove(settings.MEDIA_ROOT + '/result_labels_' + name + '.txt')
+                os.remove(settings.MEDIA_ROOT + '/result_checks_' + name + '.txt')
+            if os.path.isfile(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png'):
+                os.remove(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png')
+
+names = {}
 
 '''
 start() is run  if we visit site first time
 '''
 def start(request):
+    if(len(names) == 0):
+        print("Serwer was restarted since last visit!")
+        files = glob.glob(settings.MEDIA_ROOT + '/*')
+        for f in files:
+            os.remove(f)
+        files = glob.glob(settings.BASE_DIR  + '/cytometry/static/*')
+        for f in files:
+            os.remove(f)
+    check()
     form = forms.DocumentForm()
     return render(request, 'cytometry/form_step_0.html', {'form': form})

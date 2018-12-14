@@ -30,6 +30,16 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
+    <script>
+        setInterval(function() {
+	 $.ajax({
+	    type: 'POST',
+	    async: false,
+	    url: "{% url 'cytometry:iamhere' %}",
+            data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
+	  });
+	}, 10000); 
+    </script>
    </head>
    <script language="JavaScript">
 	function checkRefresh() {

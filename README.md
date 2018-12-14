@@ -10,10 +10,11 @@ The application is available at the address [cytometry.hopto.org](http://cytomet
 * RabbitMQ: 3.6.10
 
 # Download & run
-Clone this repository and go to cytometry_web_app directory:
+Clone this repository, go to cytometry_web_app directory, create static directory for images:
 ```
   git clone https://github.com/Dominnio/cytometry_web_app.git
   cd cytometry_web_app
+  mkdir cytometry/static
 ```
 
 Now you have to launch the queue manager (RabbitMQ) and start the task queue (Celery). In the terminal, run these commands:
