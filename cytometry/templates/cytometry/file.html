@@ -1,9 +1,8 @@
-
 Number of cells: {{ data.shape.0 }}<br><br>
 Channels: {{ data.channels }}<br><br>
 Samples:
 <ol style="margin-left:100;padding:0">
-{% for sample in data.samples %}
-	<li> {{ sample }} </li>
-{% endfor %}
+   {% for sample in data.samples %}
+   <li> {{ sample }} </li>
+   {% endfor %}
 </ol>

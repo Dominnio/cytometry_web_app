@@ -19,8 +19,9 @@ How to use
 2. Set the parameters of algorithm
 3. Set type of evaluation
 4. Click run</b>
-5. Inspect result
-6. Select the charts you want to see
+5. Wait for result
+6. Inspect result
+7. Select the charts you want to see
 ===================================================
 <nobr>
 <pre lang="html4strict">
@@ -29,53 +30,54 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script>
-        setInterval(function() {
-	 $.ajax({
-	    type: 'POST',
-	    async: false,
-	    url: "{% url 'cytometry:iamhere' %}",
-            data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
-	  });
-	}, 10000); 
-    </script>
+      <link rel="shortcut icon" src="/static/favicon.ico" type="image/x-icon">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+      <script>
+         setInterval(function() {
+         $.ajax({
+         type: 'POST',
+         async: false,
+         url: "{% url 'cytometry:iamhere' %}",
+             data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
+         });
+         }, 10000); 
+      </script>
    </head>
    <script>
-	function determinate_number_of_cluster() {
-	    var unknown = document.getElementById("noc");
-	    var from = document.getElementById("from");
-	    var to = document.getElementById("to");
-	    if (unknown.checked == true) {
-		document.getElementById("n_clusters").disabled = true;
-		from.disabled = false
-		to.disabled = false
-		document.getElementById("uk").style.visibility = "visible";
-	    } else {
-		document.getElementById("n_clusters").disabled = false;
-		from.disabled = true
-		to.disabled = true
-		document.getElementById("uk").style.visibility = "hidden";
-	    }
-	}
-
-	function check_if_valid() {
-	    mininum = parseInt(document.getElementById("from").value)
-	    maximum = parseInt(document.getElementById("to").value)
-	    if (mininum >= maximum) {
-		alert("'From' value cannot be smaller than 'to' value!")
-		document.getElementById("to").value = 7
-		document.getElementById("from").value = 2
-	    }
-	}
-
-	function checkRefresh() {
-	    if (document.refreshForm.visited.value == "") {
-		document.refreshForm.visited.value = "1";
-	    } else {
-		alert("Refreshing the page you upload the same file again.")
-	    }
-	}
+      function determinate_number_of_cluster() {
+          var unknown = document.getElementById("noc");
+          var from = document.getElementById("from");
+          var to = document.getElementById("to");
+          if (unknown.checked == true) {
+      	document.getElementById("n_clusters").disabled = true;
+      	from.disabled = false
+      	to.disabled = false
+      	document.getElementById("uk").style.visibility = "visible";
+          } else {
+      	document.getElementById("n_clusters").disabled = false;
+      	from.disabled = true
+      	to.disabled = true
+      	document.getElementById("uk").style.visibility = "hidden";
+          }
+      }
+      
+      function check_if_valid() {
+          mininum = parseInt(document.getElementById("from").value)
+          maximum = parseInt(document.getElementById("to").value)
+          if (mininum >= maximum) {
+      	alert("'From' value cannot be smaller than 'to' value!")
+      	document.getElementById("to").value = 7
+      	document.getElementById("from").value = 2
+          }
+      }
+      
+      function checkRefresh() {
+          if (document.refreshForm.visited.value == "") {
+      	document.refreshForm.visited.value = "1";
+          } else {
+      	alert("Refreshing the page you upload the same file again.")
+          }
+      } 
    </script>
    <body onLoad="JavaScript:checkRefresh();">
       <form name="refreshForm">

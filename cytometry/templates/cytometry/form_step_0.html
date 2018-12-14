@@ -7,8 +7,9 @@ How to use
 2. Set the parameters of algorithm
 3. Set type of evaluation
 4. Click run
-5. Inspect result
-6. Select the charts you want to see
+5. Wait for result
+6. Inspect result
+7. Select the charts you want to see
 ===================================================
 <nobr>
 <pre lang="html4strict">
@@ -17,15 +18,17 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
+      <link rel="shortcut icon" src="/static/favicon.ico" type="image/x-icon">
    </head>
    <script language="JavaScript">
-	function wrongFile() {
-	    alert("Wrong file name or format! \nFile should be in FCS format. \nName can't contain '[', ']', '/'.")
-	}
-
-	function tooBig() {
-	    alert("File is too big.\nMax size of file is 10 megabytes.")
-	}
+      function wrongFile() {
+          alert("Wrong file name or format! \nFile should be in FCS format. \nName can't contain '[', ']', '/'.")
+      }
+      
+      function tooBig() {
+          alert("File is too big.\nMax size of file is 10 megabytes.")
+      }
+        
    </script>
    <body>
       {% if wrong_file %}

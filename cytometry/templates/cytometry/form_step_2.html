@@ -19,7 +19,7 @@ How to use
 2. Set the parameters of algorithm
 3. Set type of evaluation
 4. Click run
-5. <b>Wait</b>
+5. <b>Wait for result</b>
 6. Inspect result
 7. Select the charts you want to see
 ===================================================
@@ -30,33 +30,33 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
-    <script>
-        setInterval(function() {
-	 $.ajax({
-	    type: 'POST',
-	    async: false,
-	    url: "{% url 'cytometry:iamhere' %}",
-            data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
-	  });
-	}, 10000); 
-    </script>
+      <link rel="shortcut icon" src="/static/favicon.ico" type="image/x-icon">
+      <script>
+         setInterval(function() {
+         $.ajax({
+         type: 'POST',
+         async: false,
+         url: "{% url 'cytometry:iamhere' %}",
+             data : { 'csrfmiddlewaretoken': '{{ csrf_token }}', name: '{{ name }}' }
+         });
+         }, 10000);
+         
+         function checkRefresh() {
+          if (document.refreshForm.visited.value == "") {
+         document.refreshForm.visited.value = "1";
+          } else {
+         alert("Refreshing the page you are analyze the same data again.")
+          }
+         }
+         
+         function post(path, data) {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", path, true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify(data));
+         } 
+      </script>
    </head>
-   <script language="JavaScript">
-	function checkRefresh() {
-	    if (document.refreshForm.visited.value == "") {
-		document.refreshForm.visited.value = "1";
-	    } else {
-		alert("Refreshing the page you are analyze the same data again.")
-	    }
-	}
-
-	function post(path, data) {
-	    var xhr = new XMLHttpRequest();
-	    xhr.open("POST", path, true);
-	    xhr.setRequestHeader('Content-Type', 'application/json');
-	    xhr.send(JSON.stringify(data));
-	}
-   </script>
    <body onLoad="JavaScript:checkRefresh();">
       <form name="refreshForm">
          <input type="hidden" name="visited" value="" />
@@ -88,43 +88,44 @@ How to use
       </form>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
       <script type="text/javascript">
-	var poll_xhr;
-	var willstop = 0;
-	(function() {
-	    var poll = function() {
-		console.log(task_id);
-		poll_xhr = $.ajax({
-		    url: 'process_state',
-		    type: 'GET',
-		    success: function(result) {
-		        if (result.process_percent == null || result.process_percent == undefined) {
-		            willstop = 1;
-		            document.getElementById("user-count").textContent = "DONE";
-		            jQuery('.bar').css({
-		                'width': 100 + '%'
-		            });
-		            jQuery('.bar').html(100 + '%');
-		            document.getElementById('returnBtn').style.visibility = 'visible';
-		            document.getElementById('cancelBtn').remove();
-
-		        } else {
-		            jQuery('.bar').css({
-		                'width': result.process_percent + '%'
-		            });
-		            jQuery('.bar').html(result.process_percent + '%');
-		            document.getElementById("user-count").textContent = "PROCRESSING";
-		        };
-		    }
-		});
-	    };
-
-	    var refreshIntervalId = setInterval(function() {
-		poll();
-		if (willstop == 1) {
-		    clearInterval(refreshIntervalId);
-		}
-	    }, 500);
-	})();
+         var poll_xhr;
+         var willstop = 0;
+         (function() {
+             var poll = function() {
+         	console.log(task_id);
+         	poll_xhr = $.ajax({
+         	    url: 'process_state',
+         	    type: 'GET',
+         	    success: function(result) {
+         	        if (result.process_percent == null || result.process_percent == undefined) {
+         	            willstop = 1;
+         	            document.getElementById("user-count").textContent = "DONE";
+         	            jQuery('.bar').css({
+         	                'width': 100 + '%'
+         	            });
+         	            jQuery('.bar').html(100 + '%');
+         	            document.getElementById('returnBtn').style.visibility = 'visible';
+         	            document.getElementById('cancelBtn').remove();
+         
+         	        } else {
+         	            jQuery('.bar').css({
+         	                'width': result.process_percent + '%'
+         	            });
+         	            jQuery('.bar').html(result.process_percent + '%');
+         	            document.getElementById("user-count").textContent = "PROCRESSING";
+         	        };
+         	    }
+         	});
+             };
+         
+             var refreshIntervalId = setInterval(function() {
+         	poll();
+         	if (willstop == 1) {
+         	    clearInterval(refreshIntervalId);
+         	}
+             }, 500);
+         })();
+              
       </script>
       <nobr/>
    </body>
