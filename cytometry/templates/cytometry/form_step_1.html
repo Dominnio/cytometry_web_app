@@ -29,6 +29,22 @@ How to use
    <head>
       <meta charset="utf-8">
       <title>Cytometry Web App</title>
+    <script>
+      window.addEventListener('beforeunload', function(event) {
+        $.ajax({
+	    type: 'POST',
+	    async: false,
+	    url: 'close',
+	});
+      });
+      window.addEventListener('unload', function(event) {
+        $.ajax({
+	    type: 'POST',
+	    async: false,
+	    url: 'close',
+	});
+      });
+    </script>
    </head>
    <script>
 	function determinate_number_of_cluster() {
@@ -74,7 +90,7 @@ How to use
          {% csrf_token %}
          <b>Uploded file: </b> <br>
          <ul>
-            <a href="/cytometry/file/?file={{ name }}" >{{ name }} <input type='hidden' name="file_name" value="{{ name }}"></a>
+            <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="file_name" value="{{ name }}"></a>
          </ul>
          <p><b>1. Select the grouping algorithm</b></p>
          <select>

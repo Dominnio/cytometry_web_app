@@ -116,6 +116,7 @@ How to use
          <b>Uploded file: </b> <br>
          <ul>
             <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' id="name" name="file_name" value="{{ name }}"></a>
+            <input type='hidden' id="preprocessing" name="preprocessing" value="{{ preprocessing }}"></a>
          </ul>
          <p><b>6. Result</b></p>
          {% if unknown_k %}
@@ -146,7 +147,6 @@ How to use
             <br>		
             {% endfor %}
          </ol>
-         Silhouette score: <br>
          {% csrf_token %}
          <p><b>7. Select the grahps you want to create</b></p>
          <select onchange="dim_changed()" name = "dim" id = "dim">

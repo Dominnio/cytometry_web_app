@@ -12,7 +12,7 @@ from gi.repository import Gtk
 import matplotlib.pyplot as plt
 from numpy import random
 from sklearn.cluster import KMeans
-from sklearn import preprocessing
+from sklearn import preprocessing as pre
 from sklearn.decomposition import PCA
 from sklearn.metrics import calinski_harabaz_score
 from sklearn.metrics import davies_bouldin_score
@@ -35,7 +35,7 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
     for i in range(min_clusters, max_clusters):
         progress = 80 * float(i - min_clusters) / float(max_clusters - min_clusters)
         if(preprocessing):
-            samples = preprocessing.scale(samples, axis=0)
+            samples = pre.scale(samples, axis=0)
         kmenas = KMeans(i,n_init=n_init,max_iter=max_iter,tol=tol).fit(samples)
 
         calinski = calinski_harabaz_score(samples,kmenas.labels_)
@@ -44,8 +44,8 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
         davies = davies_bouldin_score(samples,kmenas.labels_)
         davies_results.append(davies)
 
-        sil = silhouette_score(samples,kmenas.labels_)
-        sil_results.append(sil)
+        #sil = silhouette_score(samples,kmenas.labels_)
+        #sil_results.append(sil)
 
         #wss = kmenas.inertia_
         #tss = sum(pdist(samples)**2)/samples.shape[0]
@@ -73,12 +73,12 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
     ax2.set_ylabel('Davies-Bouldin', color='r')
     ax2.tick_params('y', colors='r')
 
-    ax3 = ax1.twinx()
-    s3 = sil_results
-    ax3.plot(t, s3, 'g-')
-    ax3.set_ylabel('Silhouette score', color='g')
-    ax3.tick_params('y', colors='g')
-    ax3.tick_params(axis='y', pad=100)
+    #ax3 = ax1.twinx()
+    #s3 = sil_results
+    #ax3.plot(t, s3, 'g-')
+    #ax3.set_ylabel('Silhouette score', color='g')
+    #ax3.tick_params('y', colors='g')
+    #ax3.tick_params(axis='y', pad=100)
 
     fig.tight_layout()
     plt.savefig(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')
@@ -94,7 +94,7 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
     if(n_clusters == 0):
         n_clusters = determine_number_of_clusters(name, samples, from_val, to_val, n_init, max_iter, tol, preprocessing)
     if(preprocessing):
-        samples = preprocessing.scale(samples, axis=0)
+        samples = pre.scale(samples, axis=0)
     kmeans = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, tol=tol).fit(samples)
     current_task.update_state(state='PROGRESS', meta={'process_percent': 75})
     i = 0

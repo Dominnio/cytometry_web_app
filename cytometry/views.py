@@ -42,10 +42,15 @@ def show(request):
             dim_2 = request.POST['second_dim']
             dim_3 = request.POST['third_dim']
     name = request.POST['file_name']
+    if('preprocessing' in request.POST and request.POST['preprocessing'] == True):
+        preprocessing = True
+    else:
+        preprocessing = False
+    print(preprocessing)
     path_file = settings.MEDIA_ROOT +  '/' +  name
     form = forms.MyForm(path_file)
     result = forms.ResultForm(name)
-    fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name)
+    fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name, preprocessing)
     if(int(dim) == 3):
         return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result})
     return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result })#, 'fig': [fig]})
@@ -55,10 +60,14 @@ result() shows cluster parameter
 '''
 def result(request):
     name = request.POST['file_name']
+    if('preprocessing' in request.POST):
+        preprocessing = 1
+    else:
+        preprocessing = 0
     path_file = settings.MEDIA_ROOT + '/' +  name
     result = forms.ResultForm(name)
     form = forms.MyForm(path_file)
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'unknown_k': 1})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'unknown_k': 1, 'preprocessing': preprocessing})
 
 '''
 process_state() shows current task progress bar (update it)
@@ -165,6 +174,7 @@ def upload_file(request):
 not used yet at all
 '''
 def close(request):
+    print(">>>>>>>>>>>>>>>>>>>>>>")
     name = request.GET['name']
     if os.path.isfile(settings.MEDIA_ROOT + '/' + name):
         os.remove(settings.MEDIA_ROOT + '/' + name)

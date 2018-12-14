@@ -56,7 +56,7 @@ How to use
          <a href="/file/?file={{ name }}" >{{ name }} <input type='hidden' name="file_name" value="{{ name }}"></a>
       </ul>
       <p>
-         Your Task is <span id="user-count"></span>!
+         Your task is <span id="user-count"></span>!
       </p>
       <form action = "{% url 'cytometry:upload_file' %}" method="post">
          {% csrf_token %}
