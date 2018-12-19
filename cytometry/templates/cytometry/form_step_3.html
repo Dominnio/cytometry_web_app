@@ -108,7 +108,7 @@ How to use
             <input type='hidden' id="preprocessing" name="preprocessing" value="{{ preprocessing }}"></a>
          </ul>
          <p><b>6. Result</b></p>
-         {% if unknown_k %}
+         {% if unknown_k == True %}
          Searching for the correct number of clusters:<br>
          <img id=myImg_2 src="" alt="My image">
          <script>

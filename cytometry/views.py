@@ -24,6 +24,7 @@ from . import forms
 from . import tasks
 import matplotlib.pyplot as plt, mpld3
 import datetime
+from wsgiref.util import FileWrapper
 
 '''
 show() gets chart parameter, create chart, optionally save it to file (if it's 3 dimensonal graf), and render 
@@ -48,15 +49,17 @@ def show(request):
         preprocessing = True
     else:
         preprocessing = False
-    print(preprocessing)
     path_file = settings.MEDIA_ROOT +  '/' +  name
     form = forms.MyForm(path_file)
     result = forms.ResultForm(name)
     fig = grouping.image_create(dim, flag, dim_1, dim_2, dim_3, path_file, name, preprocessing)
+    if(os.path.isfile(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')):
+        unknown_k = True
+    else:
+        unknown_k = False
     if(int(dim) == 3):
-        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result, 'preprocessing': preprocessing})
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': 1, 'img' : 1, 'result': result, 'preprocessing': preprocessing
-})#, 'fig': [fig]})
+        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': unknown_k, 'img' : 1, 'result': result, 'preprocessing': preprocessing})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'unknown_k': unknown_k, 'img' : 1, 'result': result, 'preprocessing': preprocessing})#, 'fig': [fig]})
 
 '''
 result() shows cluster parameter
@@ -70,7 +73,9 @@ def result(request):
     path_file = settings.MEDIA_ROOT + '/' +  name
     result = forms.ResultForm(name)
     form = forms.MyForm(path_file)
-    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'unknown_k': 1, 'preprocessing': preprocessing})
+    if(os.path.isfile(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')):
+        return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'unknown_k': 1, 'preprocessing': preprocessing})
+    return render(request, 'cytometry/form_step_3.html', {'form': form, 'name': name, 'result': result, 'preprocessing': preprocessing})
 
 '''
 process_state() shows current task progress bar (update it)
@@ -134,8 +139,6 @@ def run(request):
     form = forms.MyForm(path_file)
     job = kmeans.delay(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing)
     return HttpResponseRedirect('/job/' + job.id + '/' + name)
-
-from wsgiref.util import FileWrapper
 
 def download_file(request):
     file_name = request.POST['file_name']
@@ -207,6 +210,7 @@ def check():
                 os.remove(settings.MEDIA_ROOT + '/pretty_result_' + name + '.txt')
             if os.path.isfile(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png'):
                 os.remove(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png')
+                os.remove(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')
 
 names = {}
 

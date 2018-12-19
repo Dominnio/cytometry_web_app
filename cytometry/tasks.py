@@ -20,6 +20,19 @@ from sklearn.metrics import silhouette_score
 from scipy.spatial.distance import cdist, pdist
 from django.conf import settings
 from celery import shared_task,current_task,task
+from scipy.spatial import distance
+
+import ctypes
+import numpy.ctypeslib as ctl
+from numpy.ctypeslib import ndpointer
+lib = ctypes.cdll.LoadLibrary(settings.BASE_DIR + "/cytometry/cpp_module/my_kmeans.so")
+my_kmeans = lib.kmeans
+my_kmeans.restype = None
+my_kmeans.argtypes = [ctl.ndpointer(dtype=np.uint64),
+                      ctl.ndpointer(dtype=np.uint64),
+                      ctl.ndpointer(np.int32),
+                      ctl.ndpointer(np.double),
+                      ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_float, ctypes.c_int, ctypes.c_int]
 
 def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_init, max_iter, tol, preprocessing):
     k = 0
@@ -36,15 +49,23 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
         progress = 80 * float(i - min_clusters) / float(max_clusters - min_clusters)
         if(preprocessing):
             samples = pre.scale(samples, axis=0)
-        kmenas = KMeans(i,n_init=n_init,max_iter=max_iter,tol=tol).fit(samples)
+        #kmenas = KMeans(i,n_init=n_init,max_iter=max_iter,tol=tol).fit(samples)
 
-        calinski = calinski_harabaz_score(samples,kmenas.labels_)
+        samplespp = (samples.__array_interface__['data'][0] + np.arange(samples.shape[0])*samples.strides[0]).astype(np.uintp)
+        my_centers = np.ndarray(shape=(i,samples.shape[1]),dtype=np.double)
+        my_centerspp = (my_centers.__array_interface__['data'][0] + np.arange(my_centers.shape[0])*my_centers.strides[0]).astype(np.uintp)
+        my_labels = np.zeros(samples.shape[0],dtype=np.int32)
+        my_stats = np.zeros(4,dtype=np.double)
+
+        my_kmeans(samplespp, my_centerspp, my_labels, my_stats, samples.shape[0], i, samples.shape[1], tol, n_init, max_iter)
+
+        calinski = calinski_harabaz_score(samples,my_labels)
         calinski_results.append(calinski)
 
-        davies = davies_bouldin_score(samples,kmenas.labels_)
+        davies = davies_bouldin_score(samples,my_labels)
         davies_results.append(davies)
 
-        #sil = silhouette_score(samples,kmenas.labels_)
+        #sil = silhouette_score(samples,my_labels)
         #sil_results.append(sil)
 
         #wss = kmenas.inertia_
@@ -89,13 +110,27 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
 def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing): 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 0})
 
+    if(os.path.isfile(os.remove(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')):
+        os.remove(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')
+
     fcs_data = FlowCal.io.FCSData(file_path)
     samples = np.array(fcs_data, float)
     if(n_clusters == 0):
         n_clusters = determine_number_of_clusters(name, samples, from_val, to_val, n_init, max_iter, tol, preprocessing)
     if(preprocessing):
         samples = pre.scale(samples, axis=0)
-    kmeans = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, tol=tol).fit(samples)
+
+    #kmeans = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, tol=tol).fit(samples)    
+    #print(kmeans.cluster_centers_)
+
+    samplespp = (samples.__array_interface__['data'][0] + np.arange(samples.shape[0])*samples.strides[0]).astype(np.uintp)
+    my_centers = np.ndarray(shape=(n_clusters,samples.shape[1]),dtype=np.double)
+    my_centerspp = (my_centers.__array_interface__['data'][0] + np.arange(my_centers.shape[0])*my_centers.strides[0]).astype(np.uintp)
+    my_labels = np.zeros(samples.shape[0],dtype=np.int32)
+    my_stats = np.zeros(4,dtype=np.double)
+
+    my_kmeans(samplespp, my_centerspp, my_labels, my_stats, samples.shape[0], n_clusters, samples.shape[1], tol, n_init, max_iter)
+
     current_task.update_state(state='PROGRESS', meta={'process_percent': 75})
     i = 0
     text = ""
@@ -103,12 +138,17 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
         i = i + 5
         current_task.update_state(state='PROGRESS', meta={'process_percent': 75+i})
         if(int(check) == 1):
-            wss = kmeans.inertia_
+            wss = my_stats[3]
             wcss = round(wss,2)
             text += "WCSS: " + str(wcss) + "\n"
         if(int(check) == 2):
-            wcss = kmeans.inertia_
-            tss = sum(pdist(samples,metric='euclidean')**2)/samples.shape[0]
+            wcss = my_stats[3]
+            # najpierw licze totalny srodek
+            total_center = [samples.mean(axis=0)]
+            arr = cdist(samples, total_center, 'euclidean')
+            tss = 0 
+            for a in arr:
+                tss += a**2
             bss = tss - wcss
             bcss = round(bss,2)
             text += "BCSS: " + str(bcss) + "\n"
@@ -125,20 +165,20 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
     result_path = settings.MEDIA_ROOT + '/result_checks_' + name + '.txt'
     open(result_path,'w').write(text)
     result_path = settings.MEDIA_ROOT + '/result_labels_' + name + '.txt'
-    np.savetxt(result_path, kmeans.labels_.astype(int), fmt="%i")
+    np.savetxt(result_path, my_labels.astype(int), fmt="%i")
     result_path = settings.MEDIA_ROOT + '/result_centers_' + name + '.txt'
-    np.savetxt(result_path, kmeans.cluster_centers_.astype(float))
+    np.savetxt(result_path, my_centers.astype(float))
 
     result_path = settings.MEDIA_ROOT + '/pretty_result_' + name + '.txt'
     pretty_result = open(result_path,'w')
     pretty_result.write("Number of cluster: " + str(n_clusters))
     pretty_result.write("\n\nCenters parameters: \n")
-    for i in range(len(kmeans.cluster_centers_)):
-        pretty_result.write(str(kmeans.cluster_centers_[i]) + "\n")
+    for i in range(len(my_centers)):
+        pretty_result.write(str(my_centers[i]) + "\n")
     pretty_result.write("\n\nLabels: \n")
     in_line = 0
-    for i in range(len(kmeans.labels_)):
-        pretty_result.write(str(kmeans.labels_[i]))
+    for i in range(len(my_labels)):
+        pretty_result.write(str(my_labels[i]))
         in_line += 1
         if(in_line > 100):
             in_line = 0
