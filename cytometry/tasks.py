@@ -125,8 +125,25 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
     result_path = settings.MEDIA_ROOT + '/result_checks_' + name + '.txt'
     open(result_path,'w').write(text)
     result_path = settings.MEDIA_ROOT + '/result_labels_' + name + '.txt'
-    np.savetxt(result_path, kmeans.labels_.astype(int), fmt="%i")    
+    np.savetxt(result_path, kmeans.labels_.astype(int), fmt="%i")
     result_path = settings.MEDIA_ROOT + '/result_centers_' + name + '.txt'
     np.savetxt(result_path, kmeans.cluster_centers_.astype(float))
+
+    result_path = settings.MEDIA_ROOT + '/pretty_result_' + name + '.txt'
+    pretty_result = open(result_path,'w')
+    pretty_result.write("Number of cluster: " + str(n_clusters))
+    pretty_result.write("\n\nCenters parameters: \n")
+    for i in range(len(kmeans.cluster_centers_)):
+        pretty_result.write(str(kmeans.cluster_centers_[i]) + "\n")
+    pretty_result.write("\n\nLabels: \n")
+    in_line = 0
+    for i in range(len(kmeans.labels_)):
+        pretty_result.write(str(kmeans.labels_[i]))
+        in_line += 1
+        if(in_line > 100):
+            in_line = 0
+            pretty_result.write("\n") 
+    pretty_result.close()
+    
 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 100})

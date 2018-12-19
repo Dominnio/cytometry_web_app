@@ -57,7 +57,6 @@ How to use
       	document.getElementById("third_dim").disabled = false;
           }
       }
-      
       function use_pca() {
           var selector = document.getElementById("dim");
           var value = selector[selector.selectedIndex].value;
@@ -84,7 +83,6 @@ How to use
       	}
           }
       }
-      
       function checkRefresh() {
           if (document.refreshForm.visited.value == "") {
       	document.refreshForm.visited.value = "1";
@@ -92,11 +90,16 @@ How to use
       	alert("Refreshing the page you are doing the same action!")
           }
       }
-        
    </script>
    <body onLoad="JavaScript:checkRefresh();">
       <form name="refreshForm">
          <input type="hidden" name="visited" value="" />
+      </form>
+      You can download result here:<br>
+      <form action ="{% url 'cytometry:download' %}" method="post">
+        {% csrf_token %}
+        <input type='hidden' id="name" name="file_name" value="{{ name }}"></a>
+        <input type="submit" class="btn" value="Download result" name="download">
       </form>
       <form action = "{% url 'cytometry:show' %}" method="post">
          <b>Uploded file: </b> <br>

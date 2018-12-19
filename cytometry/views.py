@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views import generic
 from django.contrib import messages
 from django.shortcuts import render_to_response
+from django.utils.encoding import smart_str
 from django.template import RequestContext
 from django.conf import settings
 from .models import Document
@@ -134,6 +135,16 @@ def run(request):
     job = kmeans.delay(path_file, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing)
     return HttpResponseRedirect('/job/' + job.id + '/' + name)
 
+from wsgiref.util import FileWrapper
+
+def download_file(request):
+    file_name = request.POST['file_name']
+    wrapper = FileWrapper(open(settings.MEDIA_ROOT + '/pretty_result_' + file_name + '.txt', 'rb'))
+    response = HttpResponse(wrapper, content_type='text/plain')
+    response['Content-Length'] = os.path.getsize(settings.MEDIA_ROOT + '/pretty_result_' + file_name + '.txt')
+    response['Content-Disposition']='attachment; filename=' + file_name
+    return response
+
 '''
 show_file() show file in new site
 '''
@@ -193,6 +204,7 @@ def check():
                 os.remove(settings.MEDIA_ROOT + '/result_centers_' + name + '.txt')
                 os.remove(settings.MEDIA_ROOT + '/result_labels_' + name + '.txt')
                 os.remove(settings.MEDIA_ROOT + '/result_checks_' + name + '.txt')
+                os.remove(settings.MEDIA_ROOT + '/pretty_result_' + name + '.txt')
             if os.path.isfile(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png'):
                 os.remove(settings.BASE_DIR  + '/cytometry/static/real_data_result_' + name + '.png')
 

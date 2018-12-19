@@ -14,5 +14,6 @@ urlpatterns = [
     path('job/<job_id>/<name>/', views.perform,name='perform'),
     path('job/<job_id>/<name>/process_state/', views.process_state,name='process_state'),
     path('iamhere/', views.iamhere, name='iamhere'),
+    path('download/', views.download_file, name='download'),
 ]
 
