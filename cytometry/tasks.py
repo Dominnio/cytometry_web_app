@@ -32,7 +32,7 @@ my_kmeans.argtypes = [ctl.ndpointer(dtype=np.uint64),
                       ctl.ndpointer(dtype=np.uint64),
                       ctl.ndpointer(np.int32),
                       ctl.ndpointer(np.double),
-                      ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_float, ctypes.c_int, ctypes.c_int]
+                      ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_int, ctypes.c_int]
 
 def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_init, max_iter, tol, preprocessing):
     k = 0
@@ -103,14 +103,14 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
 
     fig.tight_layout()
     plt.savefig(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')
-        
+  
     return k
 
 @task(bind=True)
 def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing): 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 0})
 
-    if(os.path.isfile(os.remove(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')):
+    if(os.path.isfile(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')):
         os.remove(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')
 
     fcs_data = FlowCal.io.FCSData(file_path)
