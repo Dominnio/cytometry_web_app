@@ -1,9 +1,18 @@
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
 import datetime
 import os
-from django import forms
-from django.conf import settings
-from django.db import models
-from django.utils import timezone
+from django 		import forms
+from django.conf 	import settings
+from django.db 		import models
+from django.utils 	import timezone
 
 class Document(models.Model):
     docfile = models.FileField(upload_to='')

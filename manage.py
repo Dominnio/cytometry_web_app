@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
 import os
 import sys
 

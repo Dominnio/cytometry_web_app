@@ -1,30 +1,39 @@
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse
-from django.template import loader
-from django.http import Http404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.views import generic
-from django.contrib import messages
-from django.shortcuts import render_to_response
-from django.utils.encoding import smart_str
-from django.template import RequestContext
-from django.conf import settings
-from .models import Document
-from mysite.celery import app
-from celery import shared_task,current_task
-from celery import task
-from celery.result import AsyncResult
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
+from django.shortcuts 		import get_object_or_404, render
+from django.http 		import HttpResponse
+from django.template 		import loader
+from django.http 		import Http404
+from django.http 		import HttpResponseRedirect
+from django.urls 		import reverse
+from django.views 		import generic
+from django.contrib 		import messages
+from django.shortcuts 		import render_to_response
+from django.utils.encoding 	import smart_str
+from django.template 		import RequestContext
+from django.conf 		import settings
+from .models 			import Document
+from mysite.celery 		import app
+from celery 			import shared_task,current_task
+from celery 			import task
+from celery.result 		import AsyncResult
 import os.path
 import glob
 import json
-from cytometry import grouping
-from .tasks import kmeans
-from . import forms
-from . import tasks
-import matplotlib.pyplot as plt, mpld3
+from cytometry 			import grouping
+from .tasks 			import kmeans
+from . 				import forms
+from . 				import tasks
+import matplotlib.pyplot as plt
 import datetime
-from wsgiref.util import FileWrapper
+from wsgiref.util 		import FileWrapper
 
 '''
 show() gets chart parameter, create chart, optionally save it to file (if it's 3 dimensonal graf), and render 

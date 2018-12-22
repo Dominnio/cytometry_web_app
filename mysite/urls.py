@@ -1,22 +1,19 @@
-"""mysite URL Configuration
+'''
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
 
-from django.contrib import admin
-from django.urls import include, path
-from django.conf.urls import include, url
+Główny plik konfiguracyjny URL, zawiera listę ścieżek URL, które przekierowują żądanie 
+do odpowiednich aplikacji, które następnie w swoich plikach konfiguracyjnych URL 
+przekierowują to żądanie do widoków zdefiniowanych w views.py. 
+
+'''
+
+from django.contrib 	import admin
+from django.urls 	import include, path
+from django.conf.urls 	import include, url
 
 urlpatterns = [
     path('', include('cytometry.urls')),

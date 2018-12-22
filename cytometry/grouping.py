@@ -1,3 +1,12 @@
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
 import imp
 import FlowCal
 import gi
@@ -7,17 +16,17 @@ import time
 import pandas as pd
 import numpy as np
 import glob
+import matplotlib.pyplot as plt
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-from sklearn.cluster import KMeans
-from sklearn import preprocessing as pre
-from sklearn.decomposition import PCA
-from sklearn.metrics import calinski_harabaz_score
-from sklearn.metrics import davies_bouldin_score
-from sklearn.metrics import silhouette_score
-from scipy.spatial.distance import cdist, pdist
-import matplotlib.pyplot as plt, mpld3
-from django.conf import settings
+from gi.repository 		import Gtk
+from sklearn.cluster 		import KMeans
+from sklearn 			import preprocessing as pre
+from sklearn.decomposition 	import PCA
+from sklearn.metrics 		import calinski_harabaz_score
+from sklearn.metrics 		import davies_bouldin_score
+from sklearn.metrics 		import silhouette_score
+from scipy.spatial.distance 	import cdist, pdist
+from django.conf 		import settings
 
 def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name, preprocessing):
     fig = plt.figure()

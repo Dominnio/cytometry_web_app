@@ -1,5 +1,14 @@
-from django import forms
-from django.conf import settings
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
+from django 		import forms
+from django.conf 	import settings
 import numpy as np
 import FlowCal
 

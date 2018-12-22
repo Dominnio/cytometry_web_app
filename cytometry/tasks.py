@@ -1,3 +1,12 @@
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
 import imp
 import FlowCal
 import gi
@@ -7,24 +16,25 @@ import time
 import pandas as pd
 import numpy as np
 import glob
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
 import matplotlib.pyplot as plt
-from numpy import random
-from sklearn.cluster import KMeans
-from sklearn import preprocessing as pre
-from sklearn.decomposition import PCA
-from sklearn.metrics import calinski_harabaz_score
-from sklearn.metrics import davies_bouldin_score
-from sklearn.metrics import silhouette_score
-from scipy.spatial.distance import cdist, pdist
-from django.conf import settings
-from celery import shared_task,current_task,task
-from scipy.spatial import distance
+gi.require_version('Gtk', '3.0')
+
+from gi.repository 		import Gtk
+from numpy 			import random
+from sklearn.cluster 		import KMeans
+from sklearn 			import preprocessing as pre
+from sklearn.decomposition 	import PCA
+from sklearn.metrics 		import calinski_harabaz_score
+from sklearn.metrics 		import davies_bouldin_score
+from sklearn.metrics 		import silhouette_score
+from scipy.spatial.distance 	import cdist, pdist
+from django.conf 		import settings
+from celery 			import shared_task,current_task,task
+from scipy.spatial 		import distance
 
 import ctypes
 import numpy.ctypeslib as ctl
-from numpy.ctypeslib import ndpointer
+from numpy.ctypeslib 		import ndpointer
 lib = ctypes.cdll.LoadLibrary(settings.BASE_DIR + "/cytometry/cpp_module/my_kmeans.so")
 my_kmeans = lib.kmeans
 my_kmeans.restype = None

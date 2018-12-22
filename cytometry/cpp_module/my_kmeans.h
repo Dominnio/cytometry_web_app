@@ -1,3 +1,15 @@
+/*
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+Plik nagłówkowy dla algorytmu k-średnich. 
+
+*/
+
+
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
@@ -24,7 +36,6 @@ void initialize(double** const samples, double** centers,  int n_samples,  int n
 
 double assign(double** const samples, double**  centers, int* labels,  int n_samples,  int n_clusters,  int dimension);
 
-// returns true if was update, false when nothing changed
 bool update(double** const samples, double** centers, int* cardinality, int* labels,  int n_samples,  int n_clusters,  int dimension,  double tolerance);
 
 extern "C" void kmeans(double** const samples, double** _centers, int* _labels, double stats[4], int const n_samples,  int const n_clusters,  int const dimension,  double const tolerance,  int const n_init,  int const max_iter);

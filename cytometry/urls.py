@@ -1,5 +1,14 @@
-from django.urls import path
-from django.conf.urls import url, include
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
+from django.urls 	import path
+from django.conf.urls 	import url, include
 
 from . import views
 

@@ -1,8 +1,17 @@
-//#include <boost/python.hpp>
-//#include <boost/python/numpy.hpp>
+/*
 
-// to compile this file use: 
-// g++ -std=c++11 -o my_kmeans.so -fPIC -shared my_kmeans.cpp -I/usr/include/python2.7
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+Plik źródłowy z implementacją algorytmu k-średnich. Komilowany do biblioteki dzielonej. 
+
+Aby skompilować plik do biblioteki dzielonej (my_kmeans.so) należy użyć polecenia: 
+g++ -std=c++11 -o my_kmeans.so -fPIC -shared my_kmeans.cpp -I/usr/include/python2.7
+
+
+*/
 
 #include "my_kmeans.h"
 
@@ -33,6 +42,7 @@ void copy(double** a, double** b,  int size_x,  int size_y)
     }
 }
 
+// funkcja obliczająca dystans pomiędzy n-wymiarowymi punktami
 double distace(double* a, double* b,  int size)
 {
     double distance = 0;
@@ -43,20 +53,22 @@ double distace(double* a, double* b,  int size)
     return sqrt(distance);
 }
 
+// funkcja inicjalizująca, wybiera początkowe środki (centroidy) zgodnie z metodą k-means++
 void initialize(double** const samples, double** centers,  int n_samples,  int n_clusters,  int dimension)
 {
-    // set fisrt random centorid
+    // ustawienie pierwszego centroidu losowo
     copy(centers[0],samples[rand()%n_samples], dimension);
 
-    // set others centoids
+    // ustawienie pozostałych centroidów oparciu o prawdopodobieństwo proporcjonalne do D(x)
     for(int i = 1; i < n_clusters; i++)
     {
         double largest_shortest_distance_to_center = 0;
         double shortest_distances_to_centers[n_samples];
         int index_of_the_point_with_largest_shortest_distance_to_center= -1;
+        // dla każdego punktu wybieram centroid (już ustalony) leżący najbliżej niego
         for(int j = 0; j < n_samples; j++)
         {
-            double nearest_center_distance = NL_NMAX;
+            double nearest_center_distance = DBL_MAX;
             for(int k = 0; k < i; k++)
             {
                 double center_distance = distace(centers[k],samples[j],dimension);
@@ -72,6 +84,8 @@ void initialize(double** const samples, double** centers,  int n_samples,  int n
                 index_of_the_point_with_largest_shortest_distance_to_center = j;
             }
         }
+	
+	// realizuję losowy wybór kolejnego centroidu
         int tokens[n_samples];
         for(int t = 0; t < n_samples; t++)
         {
@@ -96,12 +110,14 @@ void initialize(double** const samples, double** centers,  int n_samples,  int n
     }
 }
 
+// przypisanie wszytstkich punktów do środka (centroidu) leżącego najbliżej danego punktu
+// funkcja oblicza i zwraca WCSS (within cluster sum of squares)
 double assign(double** const samples, double**  centers, int* labels,  int n_samples,  int n_clusters,  int dimension)
 {
     double wcss = 0;
     for(int i = 0; i < n_samples; i++)
     {
-        double nearest_cluster_distance = NL_NMAX;
+        double nearest_cluster_distance = DBL_MAX;
         int nearest_cluster_label = -1;
         for(int j = 0; j < n_clusters; j++)
         {
@@ -118,7 +134,9 @@ double assign(double** const samples, double**  centers, int* labels,  int n_sam
     return wcss;
 }
 
-// returns true if was update, false when nothing changed
+// funkcja aktualizuąca położenie centroidów, nowy cetroid jest średnią arytmetyczną punktów do niego przypisanych
+// zwraca false jeśli położenie nowych centroidów nie uległo zmianie większej niż tolerancja
+// UWAGA: jest to tolerancja inna niż 'względna tolerancja WCSS' przekazywana jako parametr algorytmu k-średnich
 bool update(double** const samples, double** centers, int* cardinality, int* labels,  int n_samples,  int n_clusters,  int dimension,  double tolerance)
 {
     double** new_centers;
@@ -152,7 +170,7 @@ bool update(double** const samples, double** centers, int* cardinality, int* lab
             new_centers[i][j] /= new_centers_cardinality[i];
         }
     }
-    
+    // sprawdzenie czy centroidy uległy wymaganej minimalnej zmianie
     for(int i = 0; i < n_clusters; i++)
     {
         if(distace(centers[i],new_centers[i],dimension) > tolerance)
@@ -172,11 +190,10 @@ bool update(double** const samples, double** centers, int* cardinality, int* lab
     return false;
 }
 
+// funkcja realizująca algorytm k-średnich
 extern "C" void kmeans(double** const samples, double** _centers, int* _labels, double stats[4], int const n_samples,  int const n_clusters,  int const dimension,  double const tolerance,  int const n_init,  int const max_iter)
 {
     srand(time(NULL));
-
-    // tmp data for better code understanding
 
     double BEST_wcss = DBL_MAX;
 
@@ -186,11 +203,11 @@ extern "C" void kmeans(double** const samples, double** _centers, int* _labels, 
 
     int number_of_the_BEST_initialization_ = 0;
 
+    // 'point_tolerance' to inna tolerancja niż 'tolerance'. Ta pierwsza dotyczy zmiany położenia centroidu, ta druga względnej zmiany WCSS.
     double point_tolerance = 0.0001;
 
 
-    // main algorithm
-
+    // główny algorytm
     for(int initialization = 1; initialization <= n_init; initialization++)
     {
         double** centers;
@@ -243,7 +260,7 @@ extern "C" void kmeans(double** const samples, double** _centers, int* _labels, 
         delete [] centers;
     }
 
-    // save tmp data as stats
+    // ustawienie statystyk
 
     stats[0] = number_of_the_BEST_initialization_;
 

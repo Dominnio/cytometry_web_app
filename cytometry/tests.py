@@ -1,3 +1,12 @@
+'''
+
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+'''
+
 from django.test import TestCase
 from django.http import HttpRequest
 from django.test import SimpleTestCase

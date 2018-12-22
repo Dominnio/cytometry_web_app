@@ -1,16 +1,25 @@
-from __future__ import absolute_import
-import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
+'''
 
-from django.conf import settings
-from celery import Celery
+Autor:    		Dominik Orliński 
+Prawa autorskie:  	(c) Dominik Orliński 
+Data:    		1.01.2019 
+Wersja:   		1.0
+
+Plik konfiguracyjny dla kolejki zadań Celery. 
+
+'''
+
+from __future__ 	import absolute_import
+from django.conf 	import settings
+from celery 		import Celery
+import os
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 app = Celery('mysite', backend='amqp', broker='amqp://guest@localhost//')
 
-# This reads, e.g., CELERY_ACCEPT_CONTENT = ['json'] from settings.py:
 app.config_from_object('django.conf:settings')
 
-# For autodiscover_tasks to work, you must define your tasks in a file called 'tasks.py'.
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.task(bind=True)
