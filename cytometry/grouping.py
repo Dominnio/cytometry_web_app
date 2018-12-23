@@ -5,6 +5,8 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+Plik pomocniczy.
+
 '''
 
 import imp
@@ -18,6 +20,7 @@ import numpy as np
 import glob
 import matplotlib.pyplot as plt
 gi.require_version('Gtk', '3.0')
+
 from gi.repository 		import Gtk
 from sklearn.cluster 		import KMeans
 from sklearn 			import preprocessing as pre
@@ -86,6 +89,5 @@ def image_create(dim, pca, dim_1, dim_2, dim_3, path_file, name, preprocessing):
     plt.title('KMeans')
     plt.grid(True)
     plt.savefig(settings.STATIC_ROOT + '/cytometry/static/real_data_result_' + name + '.png')
-    #html_fig  = mpld3.fig_to_html(fig)
-    return 1 #html_fig
+    return 1
 

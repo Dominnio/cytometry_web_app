@@ -7,6 +7,8 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+Plik stanow narzędzie wiersza poleceń, które ułatwia administrację serwerem Django.
+
 '''
 
 import os

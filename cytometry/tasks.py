@@ -5,6 +5,8 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+W tym pliku zdefiowane są zadania dla kolejki zadań Celery.
+
 '''
 
 import imp
@@ -35,6 +37,8 @@ from scipy.spatial 		import distance
 import ctypes
 import numpy.ctypeslib as ctl
 from numpy.ctypeslib 		import ndpointer
+
+# impor bliblioteki dzielonej z C++
 lib = ctypes.cdll.LoadLibrary(settings.BASE_DIR + "/cytometry/cpp_module/my_kmeans.so")
 my_kmeans = lib.kmeans
 my_kmeans.restype = None
@@ -52,14 +56,10 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
     davies_best = 0
     davies_results = []
 
-    sil_best = 0
-    sil_results = []
-
     for i in range(min_clusters, max_clusters):
         progress = 80 * float(i - min_clusters) / float(max_clusters - min_clusters)
         if(preprocessing):
             samples = pre.scale(samples, axis=0)
-        #kmenas = KMeans(i,n_init=n_init,max_iter=max_iter,tol=tol).fit(samples)
 
         samplespp = (samples.__array_interface__['data'][0] + np.arange(samples.shape[0])*samples.strides[0]).astype(np.uintp)
         my_centers = np.ndarray(shape=(i,samples.shape[1]),dtype=np.double)
@@ -75,26 +75,17 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
         davies = davies_bouldin_score(samples,my_labels)
         davies_results.append(davies)
 
-        #sil = silhouette_score(samples,my_labels)
-        #sil_results.append(sil)
-
-        #wss = kmenas.inertia_
-        #tss = sum(pdist(samples)**2)/samples.shape[0]
-        #bss = tss - wss
-        #print(bss/wss * (samples.shape[0] - i) / (i - 1)) # im wiekszy ten stosunek tym lepiej
-
         current_task.update_state(state='PROGRESS', meta={'process_percent': progress})
         if(calinski > calinski_best):
             k = i
             calinski_best = calinski
 
-
+    # stworzenie wykresów miara(k)
     fig, ax1 = plt.subplots()
     t = np.arange(min_clusters, max_clusters)
     s1 = calinski_results
     ax1.plot(t, s1, 'b-')
     ax1.set_xlabel('number of clusters')
-    # Make the y-axis label, ticks and tick labels match the line color.
     ax1.set_ylabel('Calinski-Harabasz', color='b')
     ax1.tick_params('y', colors='b')
 
@@ -104,18 +95,12 @@ def determine_number_of_clusters(name, samples, min_clusters, max_clusters, n_in
     ax2.set_ylabel('Davies-Bouldin', color='r')
     ax2.tick_params('y', colors='r')
 
-    #ax3 = ax1.twinx()
-    #s3 = sil_results
-    #ax3.plot(t, s3, 'g-')
-    #ax3.set_ylabel('Silhouette score', color='g')
-    #ax3.tick_params('y', colors='g')
-    #ax3.tick_params(axis='y', pad=100)
-
     fig.tight_layout()
     plt.savefig(settings.STATIC_ROOT + '/cytometry/static/calinski_results_' + name + '.png')
   
     return k
 
+# algorytm k-średnich i weryfikacja rozwizania
 @task(bind=True)
 def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val, checks, name, preprocessing): 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 0})
@@ -129,9 +114,6 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
         n_clusters = determine_number_of_clusters(name, samples, from_val, to_val, n_init, max_iter, tol, preprocessing)
     if(preprocessing):
         samples = pre.scale(samples, axis=0)
-
-    #kmeans = KMeans(n_clusters=n_clusters, n_init=n_init, max_iter=max_iter, tol=tol).fit(samples)    
-    #print(kmeans.cluster_centers_)
 
     samplespp = (samples.__array_interface__['data'][0] + np.arange(samples.shape[0])*samples.strides[0]).astype(np.uintp)
     my_centers = np.ndarray(shape=(n_clusters,samples.shape[1]),dtype=np.double)
@@ -153,23 +135,22 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
             text += "WCSS: " + str(wcss) + "\n"
         if(int(check) == 2):
             wcss = my_stats[3]
-            # najpierw licze totalny srodek
             total_center = [samples.mean(axis=0)]
             arr = cdist(samples, total_center, 'euclidean')
             tss = 0 
             for a in arr:
                 tss += a**2
             bss = tss - wcss
-            bcss = round(bss,2)
-            text += "BCSS: " + str(bcss) + "\n"
+            bcss = round(bss[0],2)
+            text += "BCSS / WCSS: " + str(bcss/wcss) + "\n"
         if(int(check) == 3):
-            calinski = round(calinski_harabaz_score(samples,kmeans.labels_),2)
+            calinski = round(calinski_harabaz_score(samples,my_labels),2)
             text += "Calinski-Harabaz index: " + str(calinski) + "\n"
         if(int(check) == 4):
-            davies = round(davies_bouldin_score(samples,kmeans.labels_),2)
+            davies = round(davies_bouldin_score(samples,my_labels),2)
             text += "Davis-Bouldin index: " + str(davies) + "\n"
         if(int(check) == 5):
-            silhouette = round(silhouette_score(samples,kmeans.labels_),2)
+            silhouette = round(silhouette_score(samples,my_labels),2)
             text += "Silhouette score: " + str(silhouette) + "\n"
 
     result_path = settings.MEDIA_ROOT + '/result_checks_' + name + '.txt'
@@ -193,7 +174,6 @@ def kmeans(self, file_path, n_clusters, n_init, max_iter, tol, from_val, to_val,
         if(in_line > 100):
             in_line = 0
             pretty_result.write("\n") 
-    pretty_result.close()
-    
+    pretty_result.close()  
 
     current_task.update_state(state='PROGRESS', meta={'process_percent': 100})

@@ -5,6 +5,12 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+Ten plik zawiera definicje wszystkich widoków. Widok to podstawowe narzedzie serwera. 
+Widoki przechwytują żądania GET i POST, obsługują żądanie (wyłuskują parametry GET i POST, 
+uruchamiają zadania) i w odpowiedzi podają stronę z templates do wyrenderowania 
+przekazując jej dodatkowo kontekst z jakim zostanie wygenerowana. Kontekst to dane, 
+którymi będziemy mogli się posługiwać w renderowanym szablonie za pomocą DTL. W
+
 '''
 
 from django.shortcuts 		import get_object_or_404, render

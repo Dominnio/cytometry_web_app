@@ -32,10 +32,10 @@ void copy(double** a, double** b,  int size_x,  int size_y);
 
 double distace(double* a, double* b,  int size);
 
-void initialize(double** const samples, double** centers,  int n_samples,  int n_clusters,  int dimension);
+void initialize(const double** samples, double** centers,  int n_samples,  int n_clusters,  int dimension);
 
-double assign(double** const samples, double**  centers, int* labels,  int n_samples,  int n_clusters,  int dimension);
+double assign(const double** samples, double**  centers, int* labels,  int n_samples,  int n_clusters,  int dimension);
 
-bool update(double** const samples, double** centers, int* cardinality, int* labels,  int n_samples,  int n_clusters,  int dimension,  double tolerance);
+bool update(const double** samples, double** centers, int* cardinality, int* labels,  int n_samples,  int n_clusters,  int dimension,  double tolerance);
 
-extern "C" void kmeans(double** const samples, double** _centers, int* _labels, double stats[4], int const n_samples,  int const n_clusters,  int const dimension,  double const tolerance,  int const n_init,  int const max_iter);
+extern "C" void kmeans(const double** samples, double** _centers, int* _labels, double stats[4], int const n_samples,  int const n_clusters,  int const dimension,  double const tolerance,  int const n_init,  int const max_iter);

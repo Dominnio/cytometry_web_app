@@ -22,7 +22,7 @@ SECRET_KEY = 'yk^=u%cf*wq_inl63)*p+-(5ct!!%t^q_=82h90djm1rbpvmr9'
 DEBUG = True
 
 # Definicje hostów, które mogą łączyć się z serwerem
-ALLOWED_HOSTS = ['192.168.1.20', '127.0.0.1', 'cytometry.hopto.org']
+ALLOWED_HOSTS = ['192.168.1.20', '127.0.0.1', 'localhost', 'cytometry.hopto.org']
 
 # Ustawienia kolejki zadań i zarządcy kolejki
 BROKER_URL = 'amqp://guest:guest@localhost//'

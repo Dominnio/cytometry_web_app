@@ -5,6 +5,9 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+
+Plik konfiguracyjny URL. Zawiera listę ścieżek URL. 'urlpatterns' przekierowuje żądanie do widoków zdefiniowanych w views.py. 
+
 '''
 
 from django.urls 	import path

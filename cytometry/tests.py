@@ -5,6 +5,8 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+W tym pliku znajdują się testy połączenia z serwerem. 
+
 '''
 
 from django.test import TestCase

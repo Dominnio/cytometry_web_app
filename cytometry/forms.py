@@ -5,6 +5,7 @@ Prawa autorskie:  	(c) Dominik Orliński
 Data:    		1.01.2019 
 Wersja:   		1.0
 
+W tym pliku zdefiniowane są klasy, które ułatwiają przekazywanie danych do/z szablonów HTML. 
 '''
 
 from django 		import forms
